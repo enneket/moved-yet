@@ -79,8 +79,17 @@
 ```bash
 git clone <项目地址>
 cd moved-yet
+
+# 确保使用 Node.js 25.x 或更高版本
+node --version  # 应该显示 v25.x.x
+
 npm install && npm run compile
 ```
+
+### 环境要求
+- **Node.js**: 25.x 或更高版本
+- **VS Code**: 1.100.0 或更高版本
+- **npm**: 11.x 或更高版本
 
 ### 编译 .vsix 包
 ```bash
