@@ -1,0 +1,134 @@
+{
+    "name": "moved-yet",
+    "displayName": "Moved Yet",
+    "description": "动了么？—久坐和喝水强制提醒插件",
+    "version": "0.0.1",
+    "publisher": "Immerse",
+    "engines": {
+        "vscode": "^1.100.0"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/yaolifeng0629/reminder"
+    },
+    "icon": "images/logo.png",
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [
+        "onStartupFinished"
+    ],
+    "main": "./out/extension.js",
+    "contributes": {
+        "configuration": {
+            "title": "动了么？",
+            "description": "动了么？插件配置",
+            "properties": {
+                "movedYet.sitReminderInterval": {
+                    "type": "number",
+                    "default": 60,
+                    "minimum": 5,
+                    "maximum": 180,
+                    "description": "久坐提醒间隔（分钟）"
+                },
+                "movedYet.drinkReminderInterval": {
+                    "type": "number",
+                    "default": 45,
+                    "minimum": 5,
+                    "maximum": 120,
+                    "description": "喝水提醒间隔（分钟）"
+                },
+                "movedYet.enableSitReminder": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "启用久坐提醒"
+                },
+                "movedYet.enableDrinkReminder": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "启用喝水提醒"
+                },
+                "movedYet.language": {
+                    "type": "string",
+                    "enum": [
+                        "zh-CN",
+                        "en"
+                    ],
+                    "default": "zh-CN",
+                    "description": "界面语言 / Interface Language",
+                    "enumDescriptions": [
+                        "中文简体",
+                        "English"
+                    ]
+                },
+                "movedYet.enableProgressiveReminder": {
+                    "type": "boolean",
+                    "default": false,
+                    "description": "启用渐进式提醒（状态栏→通知→全屏）"
+                },
+                "movedYet.progressiveReminderLevel1Duration": {
+                    "type": "number",
+                    "default": 5,
+                    "minimum": 1,
+                    "maximum": 30,
+                    "description": "渐进式提醒第一级持续时间（分钟），状态栏提醒持续多久后升级到通知"
+                },
+                "movedYet.progressiveReminderLevel2Duration": {
+                    "type": "number",
+                    "default": 5,
+                    "minimum": 1,
+                    "maximum": 30,
+                    "description": "渐进式提醒第二级持续时间（分钟），通知提醒持续多久后升级到全屏"
+                },
+                "movedYet.enableHistory": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "启用历史记录功能"
+                }
+            }
+        },
+        "commands": [
+            {
+                "command": "movedYet.resetTimers",
+                "title": "动了么？: 重置所有计时器"
+            },
+            {
+                "command": "movedYet.showStatus",
+                "title": "动了么？: 显示提醒状态"
+            },
+            {
+                "command": "movedYet.showHistory",
+                "title": "动了么？: 查看提醒历史"
+            },
+            {
+                "command": "movedYet.showDashboard",
+                "title": "动了么？: 查看运动仪表盘"
+            }
+        ]
+    },
+    "scripts": {
+        "vscode:prepublish": "pnpm run compile",
+        "compile": "tsc -p ./",
+        "watch": "tsc -watch -p ./",
+        "pretest": "pnpm run compile && pnpm run lint",
+        "lint": "eslint src",
+        "test": "node ./out/test/runTest.js"
+    },
+    "devDependencies": {
+        "@types/glob": "^8.1.0",
+        "@types/mocha": "^10.0.10",
+        "@types/node": "20.x",
+        "@types/sinon": "^17.0.4",
+        "@types/vscode": "^1.100.0",
+        "@typescript-eslint/eslint-plugin": "^8.31.1",
+        "@typescript-eslint/parser": "^8.31.1",
+        "@vscode/test-cli": "^0.0.10",
+        "@vscode/test-electron": "^2.5.2",
+        "@vscode/vsce": "^3.7.1",
+        "eslint": "^9.25.1",
+        "glob": "^11.0.2",
+        "mocha": "^10.4.0",
+        "sinon": "^20.0.0",
+        "typescript": "^5.8.3"
+    }
+}
