@@ -28,7 +28,12 @@ cp -r images vsix-temp/extension/
 cp package.json vsix-temp/extension/
 cp README.md vsix-temp/extension/
 cp LICENSE vsix-temp/extension/
-cp CHANGELOG.md vsix-temp/extension/
+if [ -f "CHANGELOG.md" ]; then
+    cp CHANGELOG.md vsix-temp/extension/
+fi
+if [ -f "docs/CHANGELOG.md" ]; then
+    cp docs/CHANGELOG.md vsix-temp/extension/
+fi
 
 # 5. 创建 [Content_Types].xml
 echo "📝 创建 Content_Types.xml..."

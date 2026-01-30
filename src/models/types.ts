@@ -49,6 +49,8 @@ export interface Config {
     enableHistory: boolean;
     progressiveReminderLevel1Duration: number; // 第一级持续时间（分钟）
     progressiveReminderLevel2Duration: number; // 第二级持续时间（分钟）
+    enableActivityDetection: boolean; // 启用活动检测
+    inactivityResetTime: number; // 无活动重置时间（分钟）
 }
 
 export interface ReminderRecord {
