@@ -70,7 +70,9 @@ export function startTimers(): void {
  * @param enabled 是否启用
  */
 function startSitTimer(interval: number, enabled: boolean): void {
-    if (!enabled) return;
+    if (!enabled) {
+        return;
+    }
 
     timerState.sitTimer = setTimeout(() => {
         sitReminderFunction();
@@ -87,7 +89,9 @@ function startSitTimer(interval: number, enabled: boolean): void {
  * @param enabled 是否启用
  */
 function startDrinkTimer(interval: number, enabled: boolean): void {
-    if (!enabled) return;
+    if (!enabled) {
+        return;
+    }
 
     timerState.drinkTimer = setTimeout(() => {
         drinkReminderFunction();
