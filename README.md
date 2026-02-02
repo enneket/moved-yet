@@ -18,8 +18,28 @@
 ## ⚡ 快速开始
 
 ### 安装插件
-~~1. 扩展市场搜索：动了么~~  
-2. 从源码安装
+
+#### 方法一：Open VSX Registry（推荐）
+1. **VS Code 用户**：
+   ```bash
+   # 使用命令行安装
+   code --install-extension Immerse.moved-yet
+   ```
+   
+2. **VSCodium 用户**：
+   - 打开扩展面板 (`Ctrl+Shift+X`)
+   - 搜索 "moved-yet" 或 "动了么"
+   - 点击安装
+
+3. **手动下载**：
+   - 访问 [Open VSX Registry](https://open-vsx.org/extension/Immerse/moved-yet)
+   - 下载 `.vsix` 文件
+   - VS Code 中运行：`Extensions: Install from VSIX...`
+
+#### 方法二：VS Code Marketplace
+~~暂未发布到官方市场~~
+
+#### 方法三：从源码安装
 
 
 ### 基础配置
@@ -82,8 +102,6 @@
 ```
 
 > ⚙️ **详细配置说明** → [功能指南](docs/功能指南.md#️-配置详解)
-
-## 🛠️ 开发相关
 
 ### 从源码安装
 ```bash
@@ -156,6 +174,17 @@ vsce package
 - 🎨 **美观界面** - 现代化UI，毛玻璃效果，动画过渡
 - 📊 **数据驱动** - 通过数据了解和改进健康习惯
 - 🌍 **国际化** - 中英文双语，贴心本土化
+
+## 📦 安装方式对比
+
+| 安装方式 | 适用编辑器 | 自动更新 | 推荐度 |
+|---------|-----------|---------|--------|
+| **Open VSX Registry** | VS Code, VSCodium, Code-OSS | ✅ | ⭐⭐⭐⭐⭐ |
+| **VS Code Marketplace** | 仅 VS Code | ✅ | ⭐⭐⭐⭐ |
+| **手动 VSIX 安装** | 所有编辑器 | ❌ | ⭐⭐⭐ |
+| **源码编译** | 所有编辑器 | ❌ | ⭐⭐ |
+
+> 💡 **推荐使用 Open VSX Registry**，支持更多开源编辑器，更新及时
 
 ## 🤝 支持与反馈
 
