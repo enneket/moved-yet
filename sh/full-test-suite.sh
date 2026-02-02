@@ -112,7 +112,7 @@ fi
 log_header "第五阶段: 代码质量检查"
 
 log_info "运行 TypeScript 编译检查..."
-if npm run compile > /dev/null 2>&1; then
+if pnpm run compile > /dev/null 2>&1; then
     log_success "TypeScript 编译通过"
     COMPILE_RESULT=1
 else
@@ -121,12 +121,12 @@ else
 fi
 
 log_info "运行 ESLint 代码检查..."
-if npm run lint > /dev/null 2>&1; then
+if pnpm run lint > /dev/null 2>&1; then
     log_success "ESLint 检查通过"
     LINT_RESULT=1
 else
     # 检查是否只有警告
-    if npm run lint 2>&1 | grep -q "error" && ! npm run lint 2>&1 | grep -q "warning"; then
+    if pnpm run lint 2>&1 | grep -q "error" && ! pnpm run lint 2>&1 | grep -q "warning"; then
         log_error "ESLint 检查发现错误"
         LINT_RESULT=0
     else
@@ -139,7 +139,7 @@ fi
 log_header "第六阶段: 包构建验证"
 
 log_info "构建 VSIX 包..."
-if npx vsce package --no-dependencies > /dev/null 2>&1; then
+if pnpm exec vsce package --no-dependencies > /dev/null 2>&1; then
     if [ -f "moved-yet-0.0.1.vsix" ]; then
         PACKAGE_SIZE=$(du -k moved-yet-0.0.1.vsix | cut -f1)
         log_success "VSIX 包构建成功 (${PACKAGE_SIZE}KB)"

@@ -22,17 +22,41 @@ ACCESS_TOKEN=$1
 
 echo "🚀 开始发布到 Open VSX Registry..."
 
-# 1. 编译项目
-echo "📦 编译项目..."
-npm run compile
+# 1. 检查是否已有 VSIX 包
+VSIX_FILE=$(ls moved-yet-*.vsix 2>/dev/null | head -1)
 
-# 2. 创建 VSIX 包
-echo "📦 创建 VSIX 包..."
-npx vsce package
+if [ -z "$VSIX_FILE" ]; then
+    echo "📦 未找到 VSIX 包，开始构建..."
+    
+    # 编译项目
+    echo "📦 编译项目..."
+    pnpm run compile
+    
+    # 创建 VSIX 包
+    echo "📦 创建 VSIX 包..."
+    pnpm exec vsce package --no-dependencies
+    
+    # 重新获取 VSIX 文件名
+    VSIX_FILE=$(ls moved-yet-*.vsix 2>/dev/null | head -1)
+    
+    if [ -z "$VSIX_FILE" ]; then
+        echo "❌ 错误: VSIX 包构建失败"
+        exit 1
+    fi
+else
+    echo "✅ 找到现有 VSIX 包: $VSIX_FILE"
+fi
+
+# 2. 确保 ovsx 已安装
+echo "📦 检查 ovsx 工具..."
+if ! pnpm exec ovsx --version > /dev/null 2>&1; then
+    echo "📦 安装 ovsx..."
+    pnpm add -g ovsx
+fi
 
 # 3. 发布到 Open VSX
-echo "🌐 发布到 Open VSX..."
-npx ovsx publish -p $ACCESS_TOKEN
+echo "🌐 发布 $VSIX_FILE 到 Open VSX..."
+pnpm exec ovsx publish "$VSIX_FILE" -p "$ACCESS_TOKEN"
 
 echo "✅ 发布完成!"
 echo "🔗 查看扩展: https://open-vsx.org/extension/enneket/moved-yet"

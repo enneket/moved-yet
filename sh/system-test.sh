@@ -60,7 +60,7 @@ check_system_environment() {
     echo "操作系统: $(uname -s) $(uname -r)"
     echo "架构: $(uname -m)"
     echo "Node.js: $(node --version 2>/dev/null || echo '未安装')"
-    echo "npm: $(npm --version 2>/dev/null || echo '未安装')"
+    echo "pnpm: $(pnpm --version 2>/dev/null || echo '未安装')"
     
     if command -v code > /dev/null 2>&1; then
         echo "VS Code: $(code --version 2>/dev/null | head -1 || echo '命令行不可用')"
@@ -86,8 +86,8 @@ echo "----------------------------------------"
 
 # 基础环境检查
 system_test "Node.js 环境" "node --version"
-system_test "npm 包管理器" "npm --version"
-system_test "TypeScript 编译器" "npx tsc --version"
+system_test "pnpm 包管理器" "pnpm --version"
+system_test "TypeScript 编译器" "pnpm exec tsc --version"
 
 # 系统资源检查
 if command -v free > /dev/null 2>&1; then
@@ -112,7 +112,7 @@ log_info "2. 扩展包完整性系统测试"
 echo "----------------------------------------"
 
 # 构建完整的扩展包
-system_test "扩展包构建" "npx vsce package --no-dependencies"
+system_test "扩展包构建" "pnpm exec vsce package --no-dependencies"
 
 if [ -f "moved-yet-0.0.1.vsix" ]; then
     # 包大小检查
@@ -128,7 +128,7 @@ if [ -f "moved-yet-0.0.1.vsix" ]; then
     fi
     
     # 包内容完整性检查
-    PACKAGE_CONTENT=$(npx vsce ls 2>/dev/null)
+    PACKAGE_CONTENT=$(pnpm exec vsce ls 2>/dev/null)
     
     check_package_file() {
         local file_pattern="$1"
@@ -243,7 +243,7 @@ echo "----------------------------------------"
 
 # 编译性能测试
 COMPILE_START=$(date +%s)
-if npm run compile > /dev/null 2>&1; then
+if pnpm run compile > /dev/null 2>&1; then
     COMPILE_END=$(date +%s)
     COMPILE_TIME=$((COMPILE_END - COMPILE_START))
     
@@ -260,7 +260,7 @@ fi
 
 # 包构建性能测试
 BUILD_START=$(date +%s)
-if npx vsce package --no-dependencies > /dev/null 2>&1; then
+if pnpm exec vsce package --no-dependencies > /dev/null 2>&1; then
     BUILD_END=$(date +%s)
     BUILD_TIME=$((BUILD_END - BUILD_START))
     
@@ -283,9 +283,9 @@ echo "----------------------------------------"
 system_test "无敏感信息泄露" "! grep -r 'password\|secret\|token\|key' src/ --exclude-dir=node_modules || true"
 
 # 检查依赖安全性
-if command -v npm > /dev/null 2>&1; then
+if command -v pnpm > /dev/null 2>&1; then
     log_info "检查依赖安全性..."
-    if npm audit --audit-level=high > /dev/null 2>&1; then
+    if pnpm audit --audit-level=high > /dev/null 2>&1; then
         log_success "依赖安全性检查"
         ((TOTAL_TESTS++))
     else

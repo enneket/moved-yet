@@ -9,7 +9,7 @@ echo "🚀 开始打包 Moved Yet..."
 
 # 1. 检查编译输出
 if [ ! -d "out" ]; then
-    echo "❌ 错误：out 目录不存在，请先运行 npm run compile"
+    echo "❌ 错误：out 目录不存在，请先运行 pnpm run compile"
     exit 1
 fi
 

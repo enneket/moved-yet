@@ -36,9 +36,9 @@ echo "📋 基础检查"
 echo "----------"
 
 test_step "项目结构" "test -f package.json && test -d src && test -d docs && test -d sh"
-test_step "TypeScript编译" "npm run compile"
-test_step "代码检查" "npm run lint 2>&1 | grep -v warning || true"
-test_step "包构建" "npx vsce package --no-dependencies"
+test_step "TypeScript编译" "pnpm run compile"
+test_step "代码检查" "pnpm run lint 2>&1 | grep -v warning || true"
+test_step "包构建" "pnpm exec vsce package --no-dependencies"
 
 echo ""
 echo "📦 包验证"
@@ -58,7 +58,7 @@ if [ -f "moved-yet-0.0.1.vsix" ]; then
     fi
     
     # 检查包内容
-    CONTENT=$(npx vsce ls 2>/dev/null)
+    CONTENT=$(pnpm exec vsce ls 2>/dev/null)
     if echo "$CONTENT" | grep -q "out/extension.js"; then
         echo -e "${GREEN}✅ 包内容正确${NC}"
         ((TESTS++))

@@ -63,7 +63,7 @@ log_info "1. 环境检查"
 echo "----------------------------------------"
 
 run_test "Node.js 版本检查" "node --version"
-run_test "npm 版本检查" "npm --version"
+run_test "pnpm 版本检查" "pnpm --version"
 run_test "VS Code 命令行工具" "code --version"
 
 # 2. 项目结构检查
@@ -82,7 +82,7 @@ echo ""
 log_info "3. 编译测试"
 echo "----------------------------------------"
 
-run_test "TypeScript 编译" "npm run compile"
+run_test "TypeScript 编译" "pnpm run compile"
 run_test "编译输出目录存在" "test -d out"
 run_test "主入口编译文件存在" "test -f out/extension.js"
 
@@ -92,7 +92,7 @@ log_info "4. 代码质量检查"
 echo "----------------------------------------"
 
 # ESLint 检查（允许警告，但不允许错误）
-if npm run lint 2>&1 | grep -q "error"; then
+if pnpm run lint 2>&1 | grep -q "error"; then
     log_error "ESLint 检查 - 存在错误"
     ((TOTAL_TESTS++))
 else
@@ -108,7 +108,7 @@ echo "----------------------------------------"
 # 清理旧包
 rm -f moved-yet-*.vsix
 
-run_test "VSIX 包构建" "npx vsce package --no-dependencies"
+run_test "VSIX 包构建" "pnpm exec vsce package --no-dependencies"
 run_test "VSIX 包文件存在" "test -f moved-yet-0.0.1.vsix"
 
 # 检查包大小（应该小于 500KB）
@@ -129,7 +129,7 @@ log_info "6. 包内容验证"
 echo "----------------------------------------"
 
 # 检查包内容
-PACKAGE_CONTENT=$(npx vsce ls 2>/dev/null || echo "")
+PACKAGE_CONTENT=$(pnpm exec vsce ls 2>/dev/null || echo "")
 
 check_package_content() {
     local file_pattern="$1"
@@ -246,7 +246,7 @@ fi
 
 # 检查编译时间
 COMPILE_START=$(date +%s)
-npm run compile > /dev/null 2>&1
+pnpm run compile > /dev/null 2>&1
 COMPILE_END=$(date +%s)
 COMPILE_TIME=$((COMPILE_END - COMPILE_START))
 

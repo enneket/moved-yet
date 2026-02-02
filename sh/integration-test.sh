@@ -156,7 +156,7 @@ log_info "9. 编译时集成验证"
 echo "----------------------------------------"
 
 # 编译检查，验证所有模块能正确集成
-if npm run compile > /dev/null 2>&1; then
+if pnpm run compile > /dev/null 2>&1; then
     log_success "TypeScript 编译集成验证"
     ((TOTAL_TESTS++))
     

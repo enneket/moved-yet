@@ -10,7 +10,7 @@ echo "🚀 开始发布 Moved Yet v0.0.1..."
 # 1. 检查环境
 echo "📋 检查开发环境..."
 node --version
-npm --version
+pnpm --version
 
 # 2. 清理和编译
 echo "🧹 清理项目..."
@@ -18,19 +18,19 @@ rm -rf out/
 rm -f moved-yet-*.vsix
 
 echo "📦 编译项目..."
-npm run compile
+pnpm run compile
 
 # 3. 运行代码检查
 echo "🔍 运行代码检查..."
-npm run lint
+pnpm run lint
 
 # 4. 创建 VSIX 包
 echo "📦 创建 VSIX 包..."
-npx vsce package
+pnpm exec vsce package
 
 # 5. 验证包内容
 echo "🔍 验证包内容..."
-npx vsce ls --tree
+pnpm exec vsce ls --tree
 
 # 6. 显示包信息
 VSIX_FILE="moved-yet-0.0.1.vsix"
@@ -54,7 +54,7 @@ echo "  ✅ 创建了 VSIX 包"
 echo ""
 echo "🚀 下一步操作："
 echo "  1. 测试安装: code --install-extension $VSIX_FILE"
-echo "  2. 发布到 VS Code Marketplace: npx vsce publish"
+echo "  2. 发布到 VS Code Marketplace: pnpm exec vsce publish"
 echo "  3. 发布到 Open VSX: ./sh/publish-openvsx.sh <TOKEN>"
 echo "  4. 创建 Git 标签: git tag v0.0.1 && git push origin v0.0.1"
 echo ""
