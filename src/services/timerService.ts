@@ -90,6 +90,17 @@ function startSitTimer(interval: number, enabled: boolean): void {
         return;
     }
 
+    // 检查是否在专注模式
+    try {
+        const { isFocusModeActive } = require('./focusModeService');
+        if (isFocusModeActive()) {
+            console.log('专注模式已启用，跳过久坐计时器创建');
+            return;
+        }
+    } catch (error) {
+        // 如果专注模式服务未初始化，继续正常流程
+    }
+
     timerState.sitTimer = setTimeout(() => {
         console.log('久坐提醒计时器触发');
         sitReminderFunction();
@@ -113,6 +124,17 @@ function startDrinkTimer(interval: number, enabled: boolean): void {
     if (!enabled) {
         console.log('喝水提醒已禁用，跳过计时器创建');
         return;
+    }
+
+    // 检查是否在专注模式
+    try {
+        const { isFocusModeActive } = require('./focusModeService');
+        if (isFocusModeActive()) {
+            console.log('专注模式已启用，跳过喝水计时器创建');
+            return;
+        }
+    } catch (error) {
+        // 如果专注模式服务未初始化，继续正常流程
     }
 
     timerState.drinkTimer = setTimeout(() => {

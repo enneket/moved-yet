@@ -6,6 +6,7 @@ import { initHistoryService, getHistoryService } from './services/historyService
 import { initProgressiveReminderService } from './services/progressiveReminderService';
 import { initActivityDetectionService, stopActivityDetectionService } from './services/activityDetectionService';
 import { initDailyReportService, getDailyReportService } from './services/dailyReportService';
+import { initFocusModeService, toggleFocusMode, disposeFocusModeService } from './services/focusModeService';
 import { showHealthDashboard } from './ui/dashboardUI';
 // 导入reminderUI以确保提醒函数被正确注册
 // 这是解决循环依赖的关键步骤
@@ -31,6 +32,7 @@ export function activate(context: vscode.ExtensionContext) {
     initHistoryService(context);
     initProgressiveReminderService();
     initDailyReportService(context);
+    initFocusModeService(context);
     
     // 先启动计时器，再启动活动检测
     // 这样可以避免活动检测在计时器启动前就触发重置
@@ -104,6 +106,11 @@ ${texts.weekStats}:
     // 注册查看每日报告命令
     const dailyReportCommand = vscode.commands.registerCommand('movedYet.showDailyReport', () => {
         getDailyReportService().showDailyReport();
+    });
+
+    // 注册切换专注模式命令
+    const toggleFocusModeCommand = vscode.commands.registerCommand('movedYet.toggleFocusMode', () => {
+        toggleFocusMode();
     });
 
     // 注册测试活动检测命令
@@ -415,6 +422,7 @@ ${!timerState.drinkTimer && config.enableDrink ? '2. 运行"强制重启插件"�
         historyCommand, 
         dashboardCommand,
         dailyReportCommand,
+        toggleFocusModeCommand,
         testActivityCommand,
         pauseWorkTimerCommand,
         resumeWorkTimerCommand,
@@ -464,6 +472,7 @@ ${!timerState.drinkTimer && config.enableDrink ? '2. 运行"强制重启插件"�
 export function deactivate() {
     clearAllTimers();
     stopActivityDetectionService();
+    disposeFocusModeService();
     
     // 保存最后的工作时长
     try {

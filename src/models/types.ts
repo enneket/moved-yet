@@ -37,6 +37,13 @@ export interface LanguageTexts {
     noHistory: string;
     viewHistory: string;
     viewDashboard: string;
+    focusModeActive: string;
+    focusModeEnded: string;
+    focusModeStarted: string;
+    focusModeRemaining: string;
+    enterFocusMode: string;
+    exitFocusMode: string;
+    focusModePrompt: string;
 }
 
 export interface Config {
@@ -52,6 +59,14 @@ export interface Config {
     enableActivityDetection: boolean; // 启用活动检测
     inactivityResetTime: number; // 无活动重置时间（分钟）
     enableDailyReport: boolean; // 启用每日健康报告
+    focusModeDefaultDuration: number; // 专注模式默认时长（分钟）
+}
+
+export interface FocusModeState {
+    isActive: boolean;
+    startTime: number;
+    endTime: number;
+    duration: number; // 分钟
 }
 
 export interface ReminderRecord {

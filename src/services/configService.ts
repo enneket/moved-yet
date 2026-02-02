@@ -18,6 +18,7 @@ export function getConfig(): Config {
         enableActivityDetection: config.get<boolean>('enableActivityDetection', true),
         inactivityResetTime: config.get<number>('inactivityResetTime', 5),
         enableDailyReport: config.get<boolean>('enableDailyReport', true),
+        focusModeDefaultDuration: config.get<number>('focusModeDefaultDuration', 60),
     };
 }
 

@@ -108,6 +108,13 @@
                     "type": "boolean",
                     "default": true,
                     "description": "启用每日健康报告（每天首次启动时显示）"
+                },
+                "movedYet.focusModeDefaultDuration": {
+                    "type": "number",
+                    "default": 60,
+                    "minimum": 1,
+                    "maximum": 480,
+                    "description": "专注模式默认时长（分钟）"
                 }
             }
         },
@@ -131,6 +138,10 @@
             {
                 "command": "movedYet.showDailyReport",
                 "title": "Moved Yet: View Daily Health Report"
+            },
+            {
+                "command": "movedYet.toggleFocusMode",
+                "title": "Moved Yet: Toggle Focus Mode"
             },
             {
                 "command": "movedYet.testActivityDetection",
