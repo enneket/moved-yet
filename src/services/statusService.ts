@@ -29,6 +29,23 @@ export function showCurrentStatus(): void {
         status += `${texts.drinkStatus}: ${texts.disabled}\n`;
     }
 
+    // 添加工作时长状态
+    try {
+        const { getHistoryService } = require('./historyService');
+        const historyService = getHistoryService();
+        const workStatus = historyService.getWorkStatus();
+        
+        status += `\n工作计时: ${workStatus.isActive ? '进行中' : '已暂停'}`;
+        if (workStatus.isActive) {
+            status += ` (本次 ${workStatus.currentSessionMinutes} 分钟)`;
+        } else {
+            status += ` (暂停 ${workStatus.inactiveMinutes} 分钟)`;
+        }
+        status += `\n今日工作: ${Math.round(workStatus.totalTodayMinutes / 60 * 10) / 10} 小时`;
+    } catch (error) {
+        status += `\n工作计时: 未知状态`;
+    }
+
     // 添加活动检测状态
     if (config.enableActivityDetection) {
         try {

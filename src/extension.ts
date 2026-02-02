@@ -89,14 +89,42 @@ ${texts.weekStats}:
             const activityService = getActivityDetectionService();
             const inactivityDuration = activityService.getInactivityDuration();
             
+            // 获取工作状态
+            const historyService = getHistoryService();
+            const workStatus = historyService.getWorkStatus();
+            
             vscode.window.showInformationMessage(
                 `活动检测状态:\n` +
                 `- 启用状态: ${activityService.isActive() ? '已启用' : '已禁用'}\n` +
                 `- 无活动时长: ${inactivityDuration} 分钟\n` +
-                `- 重置阈值: ${currentConfig.inactivityResetTime} 分钟`
+                `- 重置阈值: ${currentConfig.inactivityResetTime} 分钟\n` +
+                `- 工作计时: ${workStatus.isActive ? '进行中' : '已暂停'}\n` +
+                `- 今日工作: ${Math.round(workStatus.totalTodayMinutes / 60 * 10) / 10} 小时`
             );
         } catch (error) {
             vscode.window.showErrorMessage('活动检测服务未正确初始化');
+        }
+    });
+
+    // 注册暂停工作计时命令
+    const pauseWorkTimerCommand = vscode.commands.registerCommand('movedYet.pauseWorkTimer', async () => {
+        try {
+            const historyService = getHistoryService();
+            await historyService.pauseWorkTimer();
+            vscode.window.showInformationMessage('工作计时已暂停');
+        } catch (error) {
+            vscode.window.showErrorMessage('暂停工作计时失败');
+        }
+    });
+
+    // 注册恢复工作计时命令
+    const resumeWorkTimerCommand = vscode.commands.registerCommand('movedYet.resumeWorkTimer', () => {
+        try {
+            const historyService = getHistoryService();
+            historyService.resumeWorkTimer();
+            vscode.window.showInformationMessage('工作计时已恢复');
+        } catch (error) {
+            vscode.window.showErrorMessage('恢复工作计时失败');
         }
     });
 
@@ -145,6 +173,8 @@ ${texts.weekStats}:
         historyCommand, 
         dashboardCommand,
         testActivityCommand,
+        pauseWorkTimerCommand,
+        resumeWorkTimerCommand,
         confirmFromStatusBarCommand,
         confirmReminderCommand
     );

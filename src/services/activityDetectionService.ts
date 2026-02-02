@@ -131,6 +131,15 @@ class ActivityDetectionService {
             }
 
             this.lastActivityTime = now;
+            
+            // 通知历史服务记录活动（用于工作时长统计）
+            try {
+                const { getHistoryService } = require('./historyService');
+                getHistoryService().recordActivity();
+            } catch (error) {
+                console.error('通知历史服务记录活动失败:', error);
+            }
+            
             this.startInactivityTimer();
         } catch (error) {
             console.error('活动检测处理错误:', error);

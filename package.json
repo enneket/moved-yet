@@ -119,6 +119,14 @@
             {
                 "command": "movedYet.testActivityDetection",
                 "title": "动了么？: 测试活动检测"
+            },
+            {
+                "command": "movedYet.pauseWorkTimer",
+                "title": "动了么？: 暂停工作计时"
+            },
+            {
+                "command": "movedYet.resumeWorkTimer",
+                "title": "动了么？: 恢复工作计时"
             }
         ]
     },

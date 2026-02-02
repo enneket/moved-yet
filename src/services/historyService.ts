@@ -10,10 +10,15 @@ const HISTORY_KEY = 'movedYet.history';
 export class HistoryService {
     private context: vscode.ExtensionContext;
     private sessionStartTime: number;
+    private lastActiveTime: number;
+    private isWorkTimerActive: boolean;
+    private inactivityThreshold: number = 10 * 60 * 1000; // 10分钟无活动阈值
 
     constructor(context: vscode.ExtensionContext) {
         this.context = context;
         this.sessionStartTime = Date.now();
+        this.lastActiveTime = Date.now();
+        this.isWorkTimerActive = true;
     }
 
     /**
@@ -113,9 +118,42 @@ export class HistoryService {
     }
 
     /**
-     * 更新工作时长
+     * 记录用户活动（由活动检测服务调用）
      */
-    async updateWorkTime(): Promise<void> {
+    recordActivity(): void {
+        const now = Date.now();
+        const wasInactive = !this.isWorkTimerActive;
+        
+        // 如果之前处于非活跃状态，现在恢复活跃
+        if (wasInactive) {
+            console.log(`工作计时恢复 - 非活跃时长: ${Math.round((now - this.lastActiveTime) / 60000)} 分钟`);
+            this.sessionStartTime = now; // 重新开始计时
+            this.isWorkTimerActive = true;
+        }
+        
+        this.lastActiveTime = now;
+    }
+
+    /**
+     * 检查并处理非活跃状态
+     */
+    private checkInactivity(): void {
+        const now = Date.now();
+        const inactiveTime = now - this.lastActiveTime;
+        
+        // 如果超过10分钟无活动且当前还在计时
+        if (inactiveTime > this.inactivityThreshold && this.isWorkTimerActive) {
+            console.log(`检测到10分钟无活动，暂停工作计时`);
+            // 先保存到无活动开始前的工作时长
+            this.updateWorkTimeInternal(this.lastActiveTime);
+            this.isWorkTimerActive = false;
+        }
+    }
+
+    /**
+     * 内部工作时长更新方法
+     */
+    private async updateWorkTimeInternal(endTime?: number): Promise<void> {
         try {
             const history = this.getHistory();
             const today = this.getTodayDate();
@@ -130,19 +168,81 @@ export class HistoryService {
                 };
             }
 
-            // 计算本次会话的工作时长（分钟）
-            const sessionMinutes = Math.floor((Date.now() - this.sessionStartTime) / 1000 / 60);
-            history.dailyStats[today].workTimeMinutes += sessionMinutes;
-            history.totalWorkTime += sessionMinutes;
+            // 计算实际工作时长
+            const actualEndTime = endTime || Date.now();
+            const sessionMinutes = Math.floor((actualEndTime - this.sessionStartTime) / 1000 / 60);
+            
+            // 只有在计时器活跃状态下才累加时间
+            if (this.isWorkTimerActive && sessionMinutes > 0) {
+                history.dailyStats[today].workTimeMinutes += sessionMinutes;
+                history.totalWorkTime += sessionMinutes;
+                console.log(`累加工作时长: ${sessionMinutes} 分钟`);
+            }
 
             // 重置会话开始时间
-            this.sessionStartTime = Date.now();
+            this.sessionStartTime = actualEndTime;
 
             await this.saveHistory(history);
         } catch (error) {
             console.error('更新工作时长失败:', error);
             // 重置会话开始时间，避免下次计算错误
             this.sessionStartTime = Date.now();
+        }
+    }
+
+    /**
+     * 更新工作时长（公共方法）
+     */
+    async updateWorkTime(): Promise<void> {
+        // 先检查非活跃状态
+        this.checkInactivity();
+        
+        // 然后更新工作时长
+        await this.updateWorkTimeInternal();
+    }
+
+    /**
+     * 获取当前工作状态信息
+     */
+    getWorkStatus(): {
+        isActive: boolean;
+        currentSessionMinutes: number;
+        inactiveMinutes: number;
+        totalTodayMinutes: number;
+    } {
+        const now = Date.now();
+        const todayStats = this.getTodayStats();
+        const inactiveTime = now - this.lastActiveTime;
+        const currentSessionTime = this.isWorkTimerActive ? (now - this.sessionStartTime) : 0;
+        
+        return {
+            isActive: this.isWorkTimerActive,
+            currentSessionMinutes: Math.floor(currentSessionTime / 60000),
+            inactiveMinutes: Math.floor(inactiveTime / 60000),
+            totalTodayMinutes: todayStats?.workTimeMinutes || 0
+        };
+    }
+
+    /**
+     * 手动暂停工作计时
+     */
+    async pauseWorkTimer(): Promise<void> {
+        if (this.isWorkTimerActive) {
+            await this.updateWorkTimeInternal();
+            this.isWorkTimerActive = false;
+            console.log('手动暂停工作计时');
+        }
+    }
+
+    /**
+     * 手动恢复工作计时
+     */
+    resumeWorkTimer(): void {
+        if (!this.isWorkTimerActive) {
+            this.sessionStartTime = Date.now();
+            this.lastActiveTime = Date.now();
+            this.isWorkTimerActive = true;
+            console.log('手动恢复工作计时');
         }
     }
 
