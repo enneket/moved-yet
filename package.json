@@ -127,6 +127,10 @@
             {
                 "command": "movedYet.resumeWorkTimer",
                 "title": "动了么？: 恢复工作计时"
+            },
+            {
+                "command": "movedYet.clearAllReminders",
+                "title": "动了么？: 清理所有提醒（紧急修复）"
             }
         ]
     },

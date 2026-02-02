@@ -128,6 +128,24 @@ ${texts.weekStats}:
         }
     });
 
+    // 注册清理所有提醒命令（紧急修复）
+    const clearAllRemindersCommand = vscode.commands.registerCommand('movedYet.clearAllReminders', () => {
+        try {
+            // 停止渐进式提醒
+            const progressiveService = require('./services/progressiveReminderService').getProgressiveReminderService();
+            progressiveService.stopProgressiveReminder();
+            
+            // 重置所有计时器
+            resetAllTimers();
+            
+            vscode.window.showInformationMessage('所有提醒已清理，计时器已重置');
+            console.log('紧急清理：所有提醒已停止');
+        } catch (error) {
+            console.error('清理提醒失败:', error);
+            vscode.window.showErrorMessage('清理提醒失败，请重启VS Code');
+        }
+    });
+
     // 注册从状态栏确认提醒命令（用于渐进式提醒）
     const confirmFromStatusBarCommand = vscode.commands.registerCommand('movedYet.confirmFromStatusBar', () => {
         // 停止渐进式提醒
@@ -175,6 +193,7 @@ ${texts.weekStats}:
         testActivityCommand,
         pauseWorkTimerCommand,
         resumeWorkTimerCommand,
+        clearAllRemindersCommand,
         confirmFromStatusBarCommand,
         confirmReminderCommand
     );
