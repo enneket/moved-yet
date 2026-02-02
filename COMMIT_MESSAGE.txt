@@ -1,0 +1,48 @@
+chore: 迁移 GitHub Actions 从 npm 到 pnpm
+
+## 📋 变更内容
+
+### 更新的 Workflow 文件
+- ✅ `.github/workflows/ci.yml` - CI 测试流程
+- ✅ `.github/workflows/release.yml` - 正式版本发布
+- ✅ `.github/workflows/beta-release.yml` - Beta 版本发布
+- ✅ `.github/workflows/dependency-update.yml` - 依赖自动更新
+- ✅ `.github/workflows/codeql.yml` - 代码安全扫描
+
+### 主要变更
+1. **添加 pnpm setup 步骤**
+   - 使用 `pnpm/action-setup@v3`
+   - 版本固定为 pnpm@8
+
+2. **更新 Node.js 缓存**
+   - 从 `cache: 'npm'` 改为 `cache: 'pnpm'`
+
+3. **替换所有命令**
+   - `npm ci` → `pnpm install --frozen-lockfile`
+   - `npm install -g` → `pnpm add -g`
+   - `npm run` → `pnpm run`
+   - `npm test` → `pnpm test`
+   - `npm audit` → `pnpm audit`
+
+4. **更新锁文件检查**
+   - `package-lock.json` → `pnpm-lock.yaml`
+
+## 🎯 优势
+- ✅ 与本地开发环境保持一致
+- ✅ 更快的依赖安装速度
+- ✅ 节省磁盘空间（硬链接）
+- ✅ 更严格的依赖管理
+
+## 📝 文档
+- 新增 `docs/GitHub-Actions-pnpm-迁移.md` 详细说明
+
+## ✅ 测试
+- 所有 workflow 文件语法正确
+- 已验证所有 npm 命令已替换
+- 本地测试通过（20/20 测试用例）
+
+---
+
+相关 Issue: #N/A
+类型: chore
+影响范围: CI/CD

@@ -19,17 +19,22 @@ jobs:
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
     
+    - name: Setup pnpm
+      uses: pnpm/action-setup@v3
+      with:
+        version: 8
+    
     - name: Setup Node.js
       uses: actions/setup-node@v4
       with:
         node-version: '20.x'
-        cache: 'npm'
+        cache: 'pnpm'
     
     - name: Check for updates
       id: updates
       run: |
         # 检查过时的包
-        npm outdated --json > outdated.json || true
+        pnpm outdated --format json > outdated.json || true
         
         if [ -s outdated.json ]; then
           echo "has_updates=true" >> $GITHUB_OUTPUT
@@ -44,10 +49,10 @@ jobs:
       if: steps.updates.outputs.has_updates == 'true'
       run: |
         # 更新非主要版本
-        npm update
+        pnpm update
         
         # 检查是否有实际变更
-        if git diff --quiet package-lock.json; then
+        if git diff --quiet pnpm-lock.yaml; then
           echo "No actual changes after update"
           echo "skip_pr=true" >> $GITHUB_ENV
         else
@@ -58,10 +63,10 @@ jobs:
     - name: Run tests
       if: steps.updates.outputs.has_updates == 'true' && env.skip_pr == 'false'
       run: |
-        npm ci
-        npm run compile
-        npm run lint
-        npm test || echo "Tests failed, but continuing..."
+        pnpm install --frozen-lockfile
+        pnpm run compile
+        pnpm run lint
+        pnpm test || echo "Tests failed, but continuing..."
     
     - name: Create Pull Request
       if: steps.updates.outputs.has_updates == 'true' && env.skip_pr == 'false'
@@ -90,7 +95,7 @@ jobs:
           - [ ] 验证功能正常工作
           
           ### 📋 更新的包
-          请查看 `package-lock.json` 的变更了解具体更新内容。
+          请查看 `pnpm-lock.yaml` 的变更了解具体更新内容。
           
           ---
           
