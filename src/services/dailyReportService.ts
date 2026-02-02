@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
 import { getHistoryService } from './historyService';
-import { getTexts, getConfig } from './configService';
+import { getConfig } from './configService';
 
 /**
  * 每日健康报告服务
@@ -24,11 +24,35 @@ export class DailyReportService {
     }
 
     /**
+     * 获取昨天的日期字符串
+     */
+    private getYesterdayDate(): string {
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        return yesterday.toISOString().split('T')[0];
+    }
+
+    /**
+     * 检查当前时间是否在9点之后
+     */
+    private isAfter9AM(): boolean {
+        const now = new Date();
+        return now.getHours() >= 9;
+    }
+
+    /**
      * 检查是否应该显示今日报告
+     * 规则：每天9点后首次启动时显示昨天的报告
      */
     shouldShowDailyReport(): boolean {
         const today = this.getTodayDate();
-        return this.lastReportDate !== today;
+        
+        // 如果今天还没显示过报告，且当前时间在9点之后
+        if (this.lastReportDate !== today && this.isAfter9AM()) {
+            return true;
+        }
+        
+        return false;
     }
 
     /**
@@ -164,6 +188,7 @@ export class DailyReportService {
 
     /**
      * 显示每日健康报告
+     * 显示昨天的健康数据
      */
     async showDailyReport(): Promise<void> {
         const config = getConfig();
@@ -174,18 +199,24 @@ export class DailyReportService {
         }
 
         const historyService = getHistoryService();
-        const todayStats = historyService.getTodayStats();
+        const yesterdayStats = historyService.getYesterdayStats();
 
-        if (!todayStats) {
-            return; // 今天没有数据，不显示报告
+        if (!yesterdayStats) {
+            return; // 昨天没有数据，不显示报告
         }
 
-        const workHours = todayStats.workTimeMinutes / 60;
-        const score = this.calculateHealthScore(todayStats.sitCount, todayStats.drinkCount, workHours);
+        // 检查昨天是否有实际的健康数据
+        if (yesterdayStats.sitCount === 0 && yesterdayStats.drinkCount === 0) {
+            return; // 昨天没有健康活动记录，不显示报告
+        }
+
+        const workHours = yesterdayStats.workTimeMinutes / 60;
+        const score = this.calculateHealthScore(yesterdayStats.sitCount, yesterdayStats.drinkCount, workHours);
         const rating = this.getHealthRating(score);
-        const suggestions = this.generateSuggestions(todayStats.sitCount, todayStats.drinkCount, workHours);
+        const suggestions = this.generateSuggestions(yesterdayStats.sitCount, yesterdayStats.drinkCount, workHours);
 
         const isEnglish = config.language === 'en';
+        const yesterdayDate = this.getYesterdayDate();
 
         const panel = vscode.window.createWebviewPanel(
             'dailyHealthReport',
@@ -198,13 +229,14 @@ export class DailyReportService {
         );
 
         panel.webview.html = this.generateReportHTML(
-            todayStats.sitCount,
-            todayStats.drinkCount,
+            yesterdayStats.sitCount,
+            yesterdayStats.drinkCount,
             workHours,
             score,
             rating,
             suggestions,
-            isEnglish
+            isEnglish,
+            yesterdayDate
         );
 
         // 标记报告已显示
@@ -233,8 +265,17 @@ export class DailyReportService {
         score: number,
         rating: { emoji: string; text: string; color: string },
         suggestions: string[],
-        isEnglish: boolean
+        isEnglish: boolean,
+        reportDate: string
     ): string {
+        // 格式化日期显示
+        const dateObj = new Date(reportDate + 'T00:00:00');
+        const formattedDate = dateObj.toLocaleDateString(isEnglish ? 'en-US' : 'zh-CN', {
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric',
+            weekday: 'long'
+        });
 
         return `
 <!DOCTYPE html>
@@ -440,12 +481,7 @@ export class DailyReportService {
     <div class="container">
         <div class="header">
             <h1>📊 ${isEnglish ? 'Daily Health Report' : '每日健康报告'}</h1>
-            <div class="date">${new Date().toLocaleDateString(isEnglish ? 'en-US' : 'zh-CN', {
-                year: 'numeric',
-                month: 'long',
-                day: 'numeric',
-                weekday: 'long'
-            })}</div>
+            <div class="date">${formattedDate}</div>
         </div>
 
         <div class="score-section">

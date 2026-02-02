@@ -42,14 +42,15 @@ export function activate(context: vscode.ExtensionContext) {
     initActivityDetectionService();
 
     // 检查是否需要显示每日健康报告
+    // 每天9点后首次启动时显示昨天的健康报告
     // 延迟5秒显示，避免启动时打扰用户
     setTimeout(() => {
         const reportService = getDailyReportService();
         if (reportService.shouldShowDailyReport()) {
             const historyService = getHistoryService();
-            const todayStats = historyService.getTodayStats();
-            // 只有当今天有数据时才显示报告
-            if (todayStats && (todayStats.sitCount > 0 || todayStats.drinkCount > 0)) {
+            const yesterdayStats = historyService.getYesterdayStats();
+            // 只有当昨天有数据时才显示报告
+            if (yesterdayStats && (yesterdayStats.sitCount > 0 || yesterdayStats.drinkCount > 0)) {
                 reportService.showDailyReport();
             }
         }

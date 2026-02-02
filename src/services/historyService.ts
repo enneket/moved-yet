@@ -256,6 +256,25 @@ export class HistoryService {
     }
 
     /**
+     * 获取指定日期的统计
+     * @param date 日期字符串，格式：YYYY-MM-DD
+     */
+    getStatsByDate(date: string): DailyStats | null {
+        const history = this.getHistory();
+        return history.dailyStats[date] || null;
+    }
+
+    /**
+     * 获取昨天的统计
+     */
+    getYesterdayStats(): DailyStats | null {
+        const yesterday = new Date();
+        yesterday.setDate(yesterday.getDate() - 1);
+        const yesterdayDate = yesterday.toISOString().split('T')[0];
+        return this.getStatsByDate(yesterdayDate);
+    }
+
+    /**
      * 获取本周统计
      */
     getWeekStats(): { sitCount: number; drinkCount: number; workTimeMinutes: number } {
