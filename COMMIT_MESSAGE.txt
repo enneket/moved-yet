@@ -1,63 +1,23 @@
-chore: 修复 GitHub Actions pnpm 配置并更新依赖
+chore: Release version 0.0.1
 
-## 🐛 修复的问题
-- 修复 CI 中 `pnpm: not found` 错误
-- 修复 pnpm 版本不匹配导致的锁文件问题
+发布首个正式版本 v0.0.1
 
-## 📋 变更内容
+主要内容：
+- 创建 Git Tag v0.0.1
+- 推送 Tag 触发 GitHub Actions 发布流程
+- 生成发布文档 docs/RELEASE-v0.0.1.md
 
-### 1. 更新 pnpm 版本
-- 将所有 workflow 中的 pnpm 版本从 v8 更新到 v10
-- 与本地开发环境保持一致（pnpm v10.28.2）
+发布包信息：
+- VSIX 文件: moved-yet-0.0.1.vsix (375.12 KB)
+- 包含 64 个文件
+- 所有测试通过 (20/20)
 
-### 2. 更新的 Workflow 文件
-- ✅ `.github/workflows/ci.yml` - CI 测试流程
-- ✅ `.github/workflows/release.yml` - 正式版本发布
-- ✅ `.github/workflows/beta-release.yml` - Beta 版本发布
-- ✅ `.github/workflows/dependency-update.yml` - 依赖自动更新
-- ✅ `.github/workflows/codeql.yml` - 代码安全扫描
+GitHub Actions 将自动：
+1. 运行测试和编译
+2. 创建 GitHub Release
+3. 上传 VSIX 文件
+4. 发布到市场（如已配置 token）
 
-### 3. 更新依赖锁文件
-- 重新生成 `pnpm-lock.yaml` 以匹配 pnpm v10 格式
-- 更新了部分依赖版本：
-  - `@types/node`: 20.x → 25.x
-  - `@types/vscode`: 1.100.0 → 1.108.1
-  - `@typescript-eslint/*`: 8.33.1 → 8.54.0
-  - `eslint`: 9.28.0 → 9.39.2
-  - 其他小版本更新
-
-### 4. 主要配置变更
-```yaml
-# 之前
-- name: Setup pnpm
-  uses: pnpm/action-setup@v3
-  with:
-    version: 8
-
-# 现在
-- name: Setup pnpm
-  uses: pnpm/action-setup@v3
-  with:
-    version: 10
-```
-
-## 🎯 为什么需要这个修复
-
-1. **版本不匹配**: 本地使用 pnpm v10，但 CI 使用 v8
-2. **锁文件格式**: pnpm v10 的锁文件格式与 v8 不兼容
-3. **CI 失败**: 导致 `--frozen-lockfile` 参数无法正常工作
-
-## ✅ 测试结果
-- ✅ 本地测试通过：20/20 测试用例
-- ✅ 编译成功
-- ✅ Lint 检查通过
-- ✅ pnpm-lock.yaml 格式正确
-
-## 📝 相关文档
-- 详细迁移说明：`docs/GitHub-Actions-pnpm-迁移.md`
-
----
-
-类型: fix
-影响范围: CI/CD
-优先级: high
+查看发布状态：
+https://github.com/enneket/moved-yet/actions
+https://github.com/enneket/moved-yet/releases/tag/v0.0.1
