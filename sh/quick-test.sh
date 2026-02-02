@@ -44,8 +44,8 @@ echo ""
 echo "📦 包验证"
 echo "----------"
 
-if [ -f "moved-yet-0.0.2.vsix" ]; then
-    PACKAGE_SIZE=$(du -k moved-yet-0.0.2.vsix | cut -f1)
+if [ -f "moved-yet-0.0.1.vsix" ]; then
+    PACKAGE_SIZE=$(du -k moved-yet-0.0.1.vsix | cut -f1)
     echo "包大小: ${PACKAGE_SIZE}KB"
     
     if [ "$PACKAGE_SIZE" -lt 500 ]; then

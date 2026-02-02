@@ -140,8 +140,8 @@ log_header "第六阶段: 包构建验证"
 
 log_info "构建 VSIX 包..."
 if npx vsce package --no-dependencies > /dev/null 2>&1; then
-    if [ -f "moved-yet-0.0.2.vsix" ]; then
-        PACKAGE_SIZE=$(du -k moved-yet-0.0.2.vsix | cut -f1)
+    if [ -f "moved-yet-0.0.1.vsix" ]; then
+        PACKAGE_SIZE=$(du -k moved-yet-0.0.1.vsix | cut -f1)
         log_success "VSIX 包构建成功 (${PACKAGE_SIZE}KB)"
         PACKAGE_RESULT=1
     else

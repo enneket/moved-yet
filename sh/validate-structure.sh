@@ -98,7 +98,7 @@ echo "🔧 验证脚本文件..."
 # 验证脚本文件
 validate_executable "sh/package-vsix.sh" "VSIX打包脚本"
 validate_executable "sh/publish-openvsx.sh" "OpenVSX发布脚本"
-validate_executable "sh/release-v0.0.2.sh" "版本发布脚本"
+validate_executable "sh/release-v0.0.1.sh" "版本发布脚本"
 validate_executable "sh/validate-structure.sh" "结构验证脚本"
 
 echo ""

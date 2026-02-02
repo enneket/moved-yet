@@ -11,6 +11,6 @@ vsc-extension-quickstart.md
 **/.vscode-test.*
 sh/
 docs/test-activity-detection.md
-docs/RELEASE-v0.0.2.md
+docs/RELEASE-v0.0.1.md
 docs/VERSION-COMPARISON.md
 docs/PROJECT-STRUCTURE.md

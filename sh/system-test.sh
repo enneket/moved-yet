@@ -114,9 +114,9 @@ echo "----------------------------------------"
 # 构建完整的扩展包
 system_test "扩展包构建" "npx vsce package --no-dependencies"
 
-if [ -f "moved-yet-0.0.2.vsix" ]; then
+if [ -f "moved-yet-0.0.1.vsix" ]; then
     # 包大小检查
-    PACKAGE_SIZE_KB=$(du -k moved-yet-0.0.2.vsix | cut -f1)
+    PACKAGE_SIZE_KB=$(du -k moved-yet-0.0.1.vsix | cut -f1)
     PACKAGE_SIZE_MB=$((PACKAGE_SIZE_KB / 1024))
     
     if [ "$PACKAGE_SIZE_KB" -lt 1024 ]; then  # < 1MB

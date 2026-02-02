@@ -109,11 +109,11 @@ echo "----------------------------------------"
 rm -f moved-yet-*.vsix
 
 run_test "VSIX 包构建" "npx vsce package --no-dependencies"
-run_test "VSIX 包文件存在" "test -f moved-yet-0.0.2.vsix"
+run_test "VSIX 包文件存在" "test -f moved-yet-0.0.1.vsix"
 
 # 检查包大小（应该小于 500KB）
-if [ -f "moved-yet-0.0.2.vsix" ]; then
-    PACKAGE_SIZE=$(du -k moved-yet-0.0.2.vsix | cut -f1)
+if [ -f "moved-yet-0.0.1.vsix" ]; then
+    PACKAGE_SIZE=$(du -k moved-yet-0.0.1.vsix | cut -f1)
     if [ "$PACKAGE_SIZE" -lt 500 ]; then
         log_success "包大小检查 (${PACKAGE_SIZE}KB < 500KB)"
         ((TOTAL_TESTS++))
@@ -199,7 +199,7 @@ echo ""
 log_info "8. 扩展安装测试"
 echo "----------------------------------------"
 
-if [ -f "moved-yet-0.0.2.vsix" ]; then
+if [ -f "moved-yet-0.0.1.vsix" ]; then
     log_info "尝试安装扩展进行测试..."
     
     # 检查是否已安装
@@ -207,7 +207,7 @@ if [ -f "moved-yet-0.0.2.vsix" ]; then
         log_warning "扩展已安装，跳过安装测试"
     else
         # 尝试安装
-        if code --install-extension moved-yet-0.0.2.vsix --force > /dev/null 2>&1; then
+        if code --install-extension moved-yet-0.0.1.vsix --force > /dev/null 2>&1; then
             log_success "扩展安装测试"
             ((TOTAL_TESTS++))
             
@@ -234,8 +234,8 @@ log_info "9. 性能基准测试"
 echo "----------------------------------------"
 
 # 检查包大小
-if [ -f "moved-yet-0.0.2.vsix" ]; then
-    PACKAGE_SIZE_MB=$(du -m moved-yet-0.0.2.vsix | cut -f1)
+if [ -f "moved-yet-0.0.1.vsix" ]; then
+    PACKAGE_SIZE_MB=$(du -m moved-yet-0.0.1.vsix | cut -f1)
     if [ "$PACKAGE_SIZE_MB" -le 1 ]; then
         log_success "包大小性能 (${PACKAGE_SIZE_MB}MB <= 1MB)"
     else
