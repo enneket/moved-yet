@@ -1,23 +1,23 @@
-chore: Release version 0.0.1
+ci: Add continue-on-error for marketplace publishing steps
 
-发布首个正式版本 v0.0.1
+允许 VS Code Marketplace 和 Open VSX Registry 发布步骤失败而不影响整个发布流程。
 
-主要内容：
-- 创建 Git Tag v0.0.1
-- 推送 Tag 触发 GitHub Actions 发布流程
-- 生成发布文档 docs/RELEASE-v0.0.1.md
+问题：
+- GitHub Actions 在发布到 VS Code Marketplace 时因为 PAT 验证失败而导致整个工作流失败
+- 即使 GitHub Release 创建成功，但工作流显示为失败状态
 
-发布包信息：
-- VSIX 文件: moved-yet-0.0.1.vsix (375.12 KB)
-- 包含 64 个文件
-- 所有测试通过 (20/20)
+解决方案：
+- 在 Publish to VS Code Marketplace 步骤添加 continue-on-error: true
+- 在 Publish to Open VSX Registry 步骤添加 continue-on-error: true
 
-GitHub Actions 将自动：
-1. 运行测试和编译
-2. 创建 GitHub Release
-3. 上传 VSIX 文件
-4. 发布到市场（如已配置 token）
+效果：
+- 即使没有配置 VSCE_PAT 或 OVSX_PAT，GitHub Release 仍然可以成功创建
+- 市场发布步骤失败不会影响整个工作流的成功状态
+- 用户可以直接从 GitHub Release 页面下载 VSIX 文件
 
-查看发布状态：
-https://github.com/enneket/moved-yet/actions
-https://github.com/enneket/moved-yet/releases/tag/v0.0.1
+Changes:
+- .github/workflows/release.yml: 添加 continue-on-error 标志
+
+相关文档：
+- docs/RELEASE-v0.0.1.md
+- docs/GitHub-Actions-pnpm-迁移.md
