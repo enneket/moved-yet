@@ -16,6 +16,11 @@ let sitReminderFunction: ReminderFunction = () => {};
 let drinkReminderFunction: ReminderFunction = () => {};
 
 /**
+ * 导出提醒函数引用（用于调试）
+ */
+export { sitReminderFunction, drinkReminderFunction };
+
+/**
  * 设置久坐提醒函数
  * 由UI模块调用，注册显示久坐提醒的函数
  * 这是依赖注入的一种形式，使timerService可以触发UI操作而不直接依赖UI模块
@@ -56,9 +61,17 @@ export let timerState: TimerState = {
  * 在插件激活时和配置变更时调用
  */
 export function startTimers(): void {
+    console.log('startTimers() 被调用');
     const config = getConfig();
+    console.log('配置信息:', { enableSit: config.enableSit, sitInterval: config.sitInterval, enableDrink: config.enableDrink, drinkInterval: config.drinkInterval });
+    
     startSitTimer(config.sitInterval, config.enableSit);
     startDrinkTimer(config.drinkInterval, config.enableDrink);
+    
+    console.log('计时器启动完成，当前状态:', { 
+        sitTimer: timerState.sitTimer ? 'created' : 'null', 
+        drinkTimer: timerState.drinkTimer ? 'created' : 'null' 
+    });
 }
 
 /**
@@ -70,14 +83,20 @@ export function startTimers(): void {
  * @param enabled 是否启用
  */
 function startSitTimer(interval: number, enabled: boolean): void {
+    console.log(`startSitTimer 被调用: interval=${interval}, enabled=${enabled}`);
+    
     if (!enabled) {
+        console.log('久坐提醒已禁用，跳过计时器创建');
         return;
     }
 
     timerState.sitTimer = setTimeout(() => {
+        console.log('久坐提醒计时器触发');
         sitReminderFunction();
     }, interval * 60 * 1000);
     timerState.sitStartTime = Date.now();
+    
+    console.log(`久坐计时器已创建: ID=${timerState.sitTimer}, 将在${interval}分钟后触发`);
 }
 
 /**
@@ -89,14 +108,20 @@ function startSitTimer(interval: number, enabled: boolean): void {
  * @param enabled 是否启用
  */
 function startDrinkTimer(interval: number, enabled: boolean): void {
+    console.log(`startDrinkTimer 被调用: interval=${interval}, enabled=${enabled}`);
+    
     if (!enabled) {
+        console.log('喝水提醒已禁用，跳过计时器创建');
         return;
     }
 
     timerState.drinkTimer = setTimeout(() => {
+        console.log('喝水提醒计时器触发');
         drinkReminderFunction();
     }, interval * 60 * 1000);
     timerState.drinkStartTime = Date.now();
+    
+    console.log(`喝水计时器已创建: ID=${timerState.drinkTimer}, 将在${interval}分钟后触发`);
 }
 
 /**

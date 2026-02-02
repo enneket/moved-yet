@@ -109,39 +109,55 @@
         "commands": [
             {
                 "command": "movedYet.resetTimers",
-                "title": "动了么？: 重置所有计时器"
+                "title": "Moved Yet: Reset All Timers"
             },
             {
                 "command": "movedYet.showStatus",
-                "title": "动了么？: 显示提醒状态"
+                "title": "Moved Yet: Show Reminder Status"
             },
             {
                 "command": "movedYet.showHistory",
-                "title": "动了么？: 查看提醒历史"
+                "title": "Moved Yet: View Reminder History"
             },
             {
                 "command": "movedYet.showDashboard",
-                "title": "动了么？: 查看运动仪表盘"
+                "title": "Moved Yet: View Health Dashboard"
             },
             {
                 "command": "movedYet.testActivityDetection",
-                "title": "动了么？: 测试活动检测"
+                "title": "Moved Yet: Test Activity Detection"
             },
             {
                 "command": "movedYet.pauseWorkTimer",
-                "title": "动了么？: 暂停工作计时"
+                "title": "Moved Yet: Pause Work Timer"
             },
             {
                 "command": "movedYet.resumeWorkTimer",
-                "title": "动了么？: 恢复工作计时"
+                "title": "Moved Yet: Resume Work Timer"
             },
             {
                 "command": "movedYet.clearAllReminders",
-                "title": "动了么？: 清理所有提醒（紧急修复）"
+                "title": "Moved Yet: Clear All Reminders (Emergency Fix)"
             },
             {
                 "command": "movedYet.forceRestart",
-                "title": "动了么？: 强制重启插件"
+                "title": "Moved Yet: Force Restart Extension"
+            },
+            {
+                "command": "movedYet.debugTimers",
+                "title": "Moved Yet: Debug Timer Status"
+            },
+            {
+                "command": "movedYet.testShortReminders",
+                "title": "Moved Yet: Test Short Interval Reminders"
+            },
+            {
+                "command": "movedYet.forceRestartTimers",
+                "title": "Moved Yet: Force Restart Timers"
+            },
+            {
+                "command": "movedYet.verifyReminderFunctions",
+                "title": "Moved Yet: Verify Reminder Functions"
             }
         ]
     },

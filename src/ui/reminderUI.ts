@@ -16,12 +16,16 @@ setDrinkReminderFunction(() => handleReminder('drink'));
  * 处理提醒（支持渐进式提醒）
  */
 function handleReminder(type: 'sit' | 'drink'): void {
+    console.log(`handleReminder called with type: ${type}`);
     const config = getConfig();
+    console.log('Progressive reminder enabled:', config.enableProgressiveReminder);
 
     if (config.enableProgressiveReminder) {
         // 使用渐进式提醒
+        console.log('Using progressive reminder');
         const progressiveService = getProgressiveReminderService();
         progressiveService.startProgressiveReminder(type, () => {
+            console.log(`Progressive reminder callback for ${type}`);
             if (type === 'sit') {
                 showSitReminder();
             } else {
@@ -30,9 +34,12 @@ function handleReminder(type: 'sit' | 'drink'): void {
         });
     } else {
         // 直接显示全屏提醒
+        console.log('Using direct reminder');
         if (type === 'sit') {
+            console.log('Calling showSitReminder directly');
             showSitReminder();
         } else {
+            console.log('Calling showDrinkReminder directly');
             showDrinkReminder();
         }
     }
@@ -44,10 +51,22 @@ function handleReminder(type: 'sit' | 'drink'): void {
  * 确认后会重置久坐计时器
  */
 export async function showSitReminder(): Promise<void> {
+    console.log('showSitReminder called');
     const texts = getTexts();
+    console.log('Sit reminder texts:', {
+        title: texts.sitReminderTitle,
+        message: texts.sitReminderMessage,
+        button: texts.sitReminderButton
+    });
+    
     await showReminderModal(texts.sitReminderTitle, texts.sitReminderMessage, texts.sitReminderButton, () => {
+        console.log('Sit reminder onConfirm callback called');
+        console.log('Calling resetSitTimer...');
         resetSitTimer();
+        console.log('resetSitTimer completed');
+        console.log('Recording reminder history...');
         recordReminderHistory('sit', true);
+        console.log('Sit reminder process completed');
     });
 }
 

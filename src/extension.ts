@@ -26,9 +26,17 @@ import './ui/reminderUI';
 export function activate(context: vscode.ExtensionContext) {
     console.log('健康提醒插件已激活');
 
-    // 初始化服务
+    // 初始化服务（注意顺序：先初始化不依赖计时器的服务）
     initHistoryService(context);
     initProgressiveReminderService();
+    
+    // 先启动计时器，再启动活动检测
+    // 这样可以避免活动检测在计时器启动前就触发重置
+    console.log('启动健康提醒计时器...');
+    startTimers();
+    
+    // 最后启动活动检测服务
+    console.log('启动活动检测服务...');
     initActivityDetectionService();
 
     // 注册重置计时器命令
@@ -181,6 +189,165 @@ ${texts.weekStats}:
         }
     });
 
+    // 注册验证提醒函数注册状态命令
+    const verifyReminderFunctionsCommand = vscode.commands.registerCommand('movedYet.verifyReminderFunctions', () => {
+        try {
+            const { sitReminderFunction, drinkReminderFunction } = require('./services/timerService');
+            
+            // 检查函数是否是默认的空函数
+            const defaultFunction = () => {};
+            const isSitDefault = sitReminderFunction.toString() === defaultFunction.toString();
+            const isDrinkDefault = drinkReminderFunction.toString() === defaultFunction.toString();
+            
+            const message = `
+🔍 提醒函数注册验证
+
+久坐提醒函数:
+- 类型: ${typeof sitReminderFunction}
+- 是否为默认空函数: ${isSitDefault ? '❌ 是' : '✅ 否'}
+- 函数内容: ${sitReminderFunction.toString().substring(0, 100)}...
+
+喝水提醒函数:
+- 类型: ${typeof drinkReminderFunction}
+- 是否为默认空函数: ${isDrinkDefault ? '❌ 是' : '✅ 否'}
+- 函数内容: ${drinkReminderFunction.toString().substring(0, 100)}...
+
+${isSitDefault || isDrinkDefault ? '⚠️ 发现问题：提醒函数未正确注册！' : '✅ 提醒函数注册正常'}
+            `.trim();
+            
+            vscode.window.showInformationMessage(message);
+            
+            // 如果发现问题，尝试重新导入reminderUI
+            if (isSitDefault || isDrinkDefault) {
+                try {
+                    delete require.cache[require.resolve('./ui/reminderUI')];
+                    require('./ui/reminderUI');
+                    vscode.window.showInformationMessage('已尝试重新加载提醒函数，请再次验证');
+                } catch (error) {
+                    console.error('重新加载提醒函数失败:', error);
+                }
+            }
+            
+        } catch (error) {
+            console.error('验证提醒函数失败:', error);
+            vscode.window.showErrorMessage('验证提醒函数失败: ' + (error instanceof Error ? error.message : String(error)));
+        }
+    });
+    const forceRestartTimersCommand = vscode.commands.registerCommand('movedYet.forceRestartTimers', () => {
+        try {
+            const { clearAllTimers, startTimers } = require('./services/timerService');
+            
+            // 强制清除所有计时器
+            clearAllTimers();
+            
+            // 等待一下再重新启动
+            setTimeout(() => {
+                startTimers();
+                
+                // 验证启动结果
+                const { timerState } = require('./services/timerService');
+                const config = getConfig();
+                
+                let message = '计时器已强制重启\n\n';
+                message += `久坐计时器: ${timerState.sitTimer ? '✅ 已启动' : '❌ 启动失败'} (${config.enableSit ? '已启用' : '已禁用'})\n`;
+                message += `喝水计时器: ${timerState.drinkTimer ? '✅ 已启动' : '❌ 启动失败'} (${config.enableDrink ? '已启用' : '已禁用'})`;
+                
+                vscode.window.showInformationMessage(message);
+            }, 100);
+            
+        } catch (error) {
+            console.error('强制重启计时器失败:', error);
+            vscode.window.showErrorMessage('强制重启计时器失败: ' + (error instanceof Error ? error.message : String(error)));
+        }
+    });
+    const testShortRemindersCommand = vscode.commands.registerCommand('movedYet.testShortReminders', () => {
+        try {
+            // 临时设置短间隔进行测试
+            const { clearAllTimers } = require('./services/timerService');
+            const { setSitReminderFunction, setDrinkReminderFunction } = require('./services/timerService');
+            
+            clearAllTimers();
+            
+            // 设置1分钟后的久坐提醒
+            const sitTimer = setTimeout(() => {
+                vscode.window.showInformationMessage('🪑 测试久坐提醒 - 这是1分钟后的久坐提醒测试', '确认').then(() => {
+                    vscode.window.showInformationMessage('久坐提醒测试完成');
+                });
+            }, 60 * 1000);
+            
+            // 设置1.5分钟后的喝水提醒
+            const drinkTimer = setTimeout(() => {
+                vscode.window.showInformationMessage('💧 测试喝水提醒 - 这是1.5分钟后的喝水提醒测试', '确认').then(() => {
+                    vscode.window.showInformationMessage('喝水提醒测试完成');
+                });
+            }, 90 * 1000);
+            
+            vscode.window.showInformationMessage('测试已开始：久坐提醒1分钟后，喝水提醒1.5分钟后');
+            
+        } catch (error) {
+            console.error('测试短间隔提醒失败:', error);
+            vscode.window.showErrorMessage('测试失败: ' + (error instanceof Error ? error.message : String(error)));
+        }
+    });
+    // 注册调试计时器状态命令
+    const debugTimersCommand = vscode.commands.registerCommand('movedYet.debugTimers', () => {
+        try {
+            const config = getConfig();
+            const { timerState, sitReminderFunction, drinkReminderFunction } = require('./services/timerService');
+            const now = Date.now();
+            
+            const sitElapsed = Math.floor((now - timerState.sitStartTime) / 1000 / 60);
+            const drinkElapsed = Math.floor((now - timerState.drinkStartTime) / 1000 / 60);
+            
+            const debugInfo = `
+🔍 计时器调试信息
+
+📋 配置状态:
+- 久坐提醒: ${config.enableSit ? '启用' : '禁用'} (${config.sitInterval}分钟)
+- 喝水提醒: ${config.enableDrink ? '启用' : '禁用'} (${config.drinkInterval}分钟)
+- 渐进式提醒: ${config.enableProgressiveReminder ? '启用' : '禁用'}
+- 活动检测: ${config.enableActivityDetection ? '启用' : '禁用'}
+
+⏱️ 计时器状态:
+- 久坐计时器: ${timerState.sitTimer ? '运行中 (ID: ' + timerState.sitTimer + ')' : '❌ 未运行'}
+- 喝水计时器: ${timerState.drinkTimer ? '运行中 (ID: ' + timerState.drinkTimer + ')' : '❌ 未运行'}
+- 久坐开始时间: ${new Date(timerState.sitStartTime).toLocaleTimeString()}
+- 喝水开始时间: ${new Date(timerState.drinkStartTime).toLocaleTimeString()}
+- 久坐已运行: ${sitElapsed} 分钟 ${config.enableSit ? '(剩余 ' + (config.sitInterval - sitElapsed) + ' 分钟)' : '(已禁用)'}
+- 喝水已运行: ${drinkElapsed} 分钟 ${config.enableDrink ? '(剩余 ' + (config.drinkInterval - drinkElapsed) + ' 分钟)' : '(已禁用)'}
+
+🔧 提醒函数:
+- 久坐提醒函数: ${typeof sitReminderFunction} ${sitReminderFunction === (() => {}) ? '❌ 默认空函数' : '✅ 已注册'}
+- 喝水提醒函数: ${typeof drinkReminderFunction} ${drinkReminderFunction === (() => {}) ? '❌ 默认空函数' : '✅ 已注册'}
+
+🚨 问题诊断:
+${!config.enableSit ? '- 久坐提醒已禁用' : ''}
+${!config.enableDrink ? '- 喝水提醒已禁用' : ''}
+${!timerState.sitTimer && config.enableSit ? '- 久坐计时器未启动（可能是启动失败）' : ''}
+${!timerState.drinkTimer && config.enableDrink ? '- 喝水计时器未启动（可能是启动失败）' : ''}
+
+🧪 建议操作:
+${!timerState.sitTimer && config.enableSit ? '1. 运行"重置所有计时器"命令' : ''}
+${!timerState.drinkTimer && config.enableDrink ? '2. 运行"强制重启插件"命令' : ''}
+3. 运行"测试短间隔提醒"命令验证功能
+            `.trim();
+            
+            vscode.window.showInformationMessage(debugInfo);
+            console.log('Timer Debug Info:', {
+                config,
+                timerState,
+                sitElapsed,
+                drinkElapsed,
+                sitReminderFunction: sitReminderFunction.toString(),
+                drinkReminderFunction: drinkReminderFunction.toString()
+            });
+            
+        } catch (error) {
+            console.error('调试计时器失败:', error);
+            vscode.window.showErrorMessage('调试计时器失败: ' + (error instanceof Error ? error.message : String(error)));
+        }
+    });
+
     // 注册从状态栏确认提醒命令（用于渐进式提醒）
     const confirmFromStatusBarCommand = vscode.commands.registerCommand('movedYet.confirmFromStatusBar', () => {
         // 停止渐进式提醒
@@ -230,12 +397,13 @@ ${texts.weekStats}:
         resumeWorkTimerCommand,
         clearAllRemindersCommand,
         forceRestartCommand,
+        forceRestartTimersCommand,
+        verifyReminderFunctionsCommand,
+        testShortRemindersCommand,
+        debugTimersCommand,
         confirmFromStatusBarCommand,
         confirmReminderCommand
     );
-
-    // 启动健康提醒计时器
-    startTimers();
 
     // 监听配置变化，当健康提醒配置改变时重置计时器
     vscode.workspace.onDidChangeConfiguration(e => {
