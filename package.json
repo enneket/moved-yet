@@ -3,13 +3,13 @@
     "displayName": "Moved Yet",
     "description": "动了么？—久坐和喝水强制提醒插件",
     "version": "0.0.2",
-    "publisher": "Immerse",
+    "publisher": "enneket",
     "engines": {
         "vscode": "^1.100.0"
     },
     "repository": {
         "type": "git",
-        "url": "https://github.com/yaolifeng0629/reminder"
+        "url": "https://github.com/enneket/moved-yet"
     },
     "icon": "images/logo.png",
     "categories": [

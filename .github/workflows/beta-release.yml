@@ -1,0 +1,106 @@
+name: Beta Release
+
+on:
+  push:
+    branches:
+      - develop
+    paths-ignore:
+      - 'docs/**'
+      - '*.md'
+      - '.gitignore'
+
+jobs:
+  beta-release:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+      
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Install vsce
+      run: npm install -g @vscode/vsce
+    
+    - name: Generate beta version
+      id: version
+      run: |
+        PACKAGE_VERSION=$(node -p "require('./package.json').version")
+        COMMIT_SHA=$(git rev-parse --short HEAD)
+        BETA_VERSION="${PACKAGE_VERSION}-beta.${COMMIT_SHA}"
+        
+        # 更新package.json中的版本号
+        npm version $BETA_VERSION --no-git-tag-version
+        
+        echo "beta_version=${BETA_VERSION}" >> $GITHUB_OUTPUT
+        echo "package_version=${PACKAGE_VERSION}" >> $GITHUB_OUTPUT
+    
+    - name: Compile
+      run: npm run compile
+    
+    - name: Run tests
+      run: xvfb-run -a npm test
+    
+    - name: Package extension
+      run: vsce package
+    
+    - name: Get VSIX filename
+      id: vsix
+      run: |
+        PACKAGE_NAME=$(node -p "require('./package.json').name")
+        VSIX_FILE="${PACKAGE_NAME}-${{ steps.version.outputs.beta_version }}.vsix"
+        echo "vsix_file=${VSIX_FILE}" >> $GITHUB_OUTPUT
+    
+    - name: Create Beta Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: v${{ steps.version.outputs.beta_version }}
+        name: Beta Release v${{ steps.version.outputs.beta_version }}
+        body: |
+          ## 🧪 Beta 版本 v${{ steps.version.outputs.beta_version }}
+          
+          这是一个测试版本，基于 develop 分支的最新代码构建。
+          
+          ### ⚠️ 注意事项
+          - 这是测试版本，可能包含未完全测试的功能
+          - 不建议在生产环境中使用
+          - 如果遇到问题，请及时反馈
+          
+          ### 📦 安装方法
+          ```bash
+          code --install-extension ${{ steps.vsix.outputs.vsix_file }}
+          ```
+          
+          ### 🔄 基于版本
+          - 基础版本: v${{ steps.version.outputs.package_version }}
+          - 提交: ${{ github.sha }}
+          - 分支: ${{ github.ref_name }}
+        files: |
+          ${{ steps.vsix.outputs.vsix_file }}
+        draft: false
+        prerelease: true
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Upload beta artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: beta-vsix-${{ steps.version.outputs.beta_version }}
+        path: ${{ steps.vsix.outputs.vsix_file }}
+        retention-days: 30
+    
+    - name: Restore package.json version
+      run: |
+        git checkout -- package.json

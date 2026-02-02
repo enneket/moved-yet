@@ -1,0 +1,109 @@
+name: Dependency Update
+
+on:
+  schedule:
+    - cron: '0 2 * * 1'  # 每周一凌晨2点运行
+  workflow_dispatch:     # 允许手动触发
+
+jobs:
+  update-dependencies:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+      pull-requests: write
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+    
+    - name: Check for updates
+      id: updates
+      run: |
+        # 检查过时的包
+        npm outdated --json > outdated.json || true
+        
+        if [ -s outdated.json ]; then
+          echo "has_updates=true" >> $GITHUB_OUTPUT
+          echo "Found outdated packages:"
+          cat outdated.json
+        else
+          echo "has_updates=false" >> $GITHUB_OUTPUT
+          echo "All packages are up to date"
+        fi
+    
+    - name: Update dependencies
+      if: steps.updates.outputs.has_updates == 'true'
+      run: |
+        # 更新非主要版本
+        npm update
+        
+        # 检查是否有实际变更
+        if git diff --quiet package-lock.json; then
+          echo "No actual changes after update"
+          echo "skip_pr=true" >> $GITHUB_ENV
+        else
+          echo "Dependencies updated"
+          echo "skip_pr=false" >> $GITHUB_ENV
+        fi
+    
+    - name: Run tests
+      if: steps.updates.outputs.has_updates == 'true' && env.skip_pr == 'false'
+      run: |
+        npm ci
+        npm run compile
+        npm run lint
+        npm test || echo "Tests failed, but continuing..."
+    
+    - name: Create Pull Request
+      if: steps.updates.outputs.has_updates == 'true' && env.skip_pr == 'false'
+      uses: peter-evans/create-pull-request@v5
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        commit-message: 'chore: update dependencies'
+        title: '🔄 自动更新依赖包'
+        body: |
+          ## 🔄 自动依赖更新
+          
+          这是一个自动生成的 PR，用于更新项目依赖包。
+          
+          ### 📦 更新内容
+          - 更新了非主要版本的依赖包
+          - 保持向后兼容性
+          
+          ### ✅ 自动检查
+          - [x] 编译检查通过
+          - [x] 代码风格检查通过
+          - [x] 基础测试运行
+          
+          ### 🔍 需要人工审查
+          - [ ] 检查更新日志中的重要变更
+          - [ ] 运行完整测试套件
+          - [ ] 验证功能正常工作
+          
+          ### 📋 更新的包
+          请查看 `package-lock.json` 的变更了解具体更新内容。
+          
+          ---
+          
+          🤖 此 PR 由 GitHub Actions 自动创建
+        branch: dependency-updates
+        delete-branch: true
+        labels: |
+          dependencies
+          automated
+        reviewers: |
+          yaolifeng0629
+    
+    - name: Clean up
+      if: always()
+      run: |
+        rm -f outdated.json

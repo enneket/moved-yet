@@ -1,0 +1,114 @@
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    
+    permissions:
+      contents: write
+      
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      with:
+        fetch-depth: 0
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Install vsce and ovsx
+      run: |
+        npm install -g @vscode/vsce
+        npm install -g ovsx
+    
+    - name: Compile
+      run: npm run compile
+    
+    - name: Run tests
+      run: xvfb-run -a npm test
+    
+    - name: Package extension
+      run: vsce package
+    
+    - name: Get package info
+      id: package
+      run: |
+        PACKAGE_VERSION=$(node -p "require('./package.json').version")
+        PACKAGE_NAME=$(node -p "require('./package.json').name")
+        VSIX_FILE="${PACKAGE_NAME}-${PACKAGE_VERSION}.vsix"
+        echo "version=${PACKAGE_VERSION}" >> $GITHUB_OUTPUT
+        echo "name=${PACKAGE_NAME}" >> $GITHUB_OUTPUT
+        echo "vsix_file=${VSIX_FILE}" >> $GITHUB_OUTPUT
+    
+    - name: Generate changelog
+      id: changelog
+      run: |
+        # 提取当前版本的changelog
+        VERSION="${{ steps.package.outputs.version }}"
+        CHANGELOG_FILE="docs/CHANGELOG.md"
+        
+        if [ -f "$CHANGELOG_FILE" ]; then
+          # 提取当前版本的更新内容
+          awk "/### v${VERSION}/,/### v[0-9]/{if(/### v[0-9]/ && !/### v${VERSION}/) exit; print}" "$CHANGELOG_FILE" > current_changelog.md
+          
+          # 如果提取的内容为空，使用默认内容
+          if [ ! -s current_changelog.md ]; then
+            echo "## 🎉 版本 v${VERSION} 发布" > current_changelog.md
+            echo "" >> current_changelog.md
+            echo "### 更新内容" >> current_changelog.md
+            echo "- 功能改进和错误修复" >> current_changelog.md
+            echo "- 性能优化" >> current_changelog.md
+            echo "" >> current_changelog.md
+            echo "详细更新内容请查看 [CHANGELOG.md](docs/CHANGELOG.md)" >> current_changelog.md
+          fi
+        else
+          echo "## 🎉 版本 v${VERSION} 发布" > current_changelog.md
+          echo "" >> current_changelog.md
+          echo "### 更新内容" >> current_changelog.md
+          echo "- 功能改进和错误修复" >> current_changelog.md
+        fi
+        
+        echo "changelog_file=current_changelog.md" >> $GITHUB_OUTPUT
+    
+    - name: Create GitHub Release
+      uses: softprops/action-gh-release@v1
+      with:
+        tag_name: ${{ github.ref_name }}
+        name: Release ${{ github.ref_name }}
+        body_path: ${{ steps.changelog.outputs.changelog_file }}
+        files: |
+          ${{ steps.package.outputs.vsix_file }}
+        draft: false
+        prerelease: false
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Publish to VS Code Marketplace
+      if: ${{ !contains(github.ref_name, 'beta') && !contains(github.ref_name, 'alpha') }}
+      run: vsce publish --packagePath ${{ steps.package.outputs.vsix_file }}
+      env:
+        VSCE_PAT: ${{ secrets.VSCE_PAT }}
+    
+    - name: Publish to Open VSX Registry
+      if: ${{ !contains(github.ref_name, 'beta') && !contains(github.ref_name, 'alpha') }}
+      run: ovsx publish ${{ steps.package.outputs.vsix_file }}
+      env:
+        OVSX_PAT: ${{ secrets.OVSX_PAT }}
+    
+    - name: Upload release artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: release-vsix-${{ steps.package.outputs.version }}
+        path: ${{ steps.package.outputs.vsix_file }}
+        retention-days: 90

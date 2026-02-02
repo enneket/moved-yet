@@ -35,4 +35,4 @@ echo "🌐 发布到 Open VSX..."
 npx ovsx publish -p $ACCESS_TOKEN
 
 echo "✅ 发布完成!"
-echo "🔗 查看扩展: https://open-vsx.org/extension/Immerse/moved-yet"
+echo "🔗 查看扩展: https://open-vsx.org/extension/enneket/moved-yet"

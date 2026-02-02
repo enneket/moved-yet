@@ -1,5 +1,11 @@
 # Moved Yet - 动了么？
 
+[![CI](https://github.com/enneket/moved-yet/workflows/CI/badge.svg)](https://github.com/enneket/moved-yet/actions/workflows/ci.yml)
+[![Release](https://github.com/enneket/moved-yet/workflows/Release/badge.svg)](https://github.com/enneket/moved-yet/actions/workflows/release.yml)
+[![CodeQL](https://github.com/enneket/moved-yet/workflows/CodeQL/badge.svg)](https://github.com/enneket/moved-yet/actions/workflows/codeql.yml)
+[![Version](https://img.shields.io/github/v/release/enneket/moved-yet)](https://github.com/enneket/moved-yet/releases)
+[![Downloads](https://img.shields.io/github/downloads/enneket/moved-yet/total)](https://github.com/enneket/moved-yet/releases)
+
 > 🤔 还在椅子上坐了3小时？💧 上次喝水是什么时候？  
 > 💻 专注编码的你，别忘了关爱自己  
 
@@ -23,7 +29,7 @@
 1. **VS Code 用户**：
    ```bash
    # 使用命令行安装
-   code --install-extension Immerse.moved-yet
+   code --install-extension enneket.moved-yet
    ```
    
 2. **VSCodium 用户**：
@@ -32,7 +38,7 @@
    - 点击安装
 
 3. **手动下载**：
-   - 访问 [Open VSX Registry](https://open-vsx.org/extension/Immerse/moved-yet)
+   - 访问 [Open VSX Registry](https://open-vsx.org/extension/enneket/moved-yet)
    - 下载 `.vsix` 文件
    - VS Code 中运行：`Extensions: Install from VSIX...`
 
@@ -102,6 +108,27 @@
 ```
 
 > ⚙️ **详细配置说明** → [功能指南](docs/功能指南.md#️-配置详解)
+
+## 🛠️ 开发相关
+
+### 📦 自动化发布
+
+本项目配置了完整的 GitHub Actions CI/CD 工作流：
+
+- **持续集成**: 自动测试、代码检查、安全扫描
+- **自动发布**: 推送标签自动发布到 GitHub Releases、VS Code Marketplace、Open VSX
+- **Beta 版本**: develop 分支自动构建测试版本
+
+#### 发布新版本
+```bash
+# 使用发布脚本（推荐）
+./sh/create-release.sh 0.0.3
+
+# 或手动创建标签
+git tag v0.0.3 && git push origin v0.0.3
+```
+
+> 📚 **详细说明** → [GitHub CI/CD 配置指南](docs/GitHub-CICD配置指南.md)
 
 ### 从源码安装
 ```bash
