@@ -138,6 +138,10 @@
             {
                 "command": "movedYet.clearAllReminders",
                 "title": "动了么？: 清理所有提醒（紧急修复）"
+            },
+            {
+                "command": "movedYet.forceRestart",
+                "title": "动了么？: 强制重启插件"
             }
         ]
     },

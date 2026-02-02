@@ -88,14 +88,10 @@ export class ProgressiveReminderService {
         const message = this.reminderType === 'sit' ? texts.sitReminderMessage : texts.drinkReminderMessage;
         const title = this.reminderType === 'sit' ? texts.sitReminderTitle : texts.drinkReminderTitle;
 
-        // 确保之前的通知已经清理
-        if (this.notificationPromise) {
-            console.log('清理之前的通知');
-        }
-
+        // 使用信息提示而不是警告提示，避免无法清除的问题
         console.log(`显示第2级通知: ${title}`);
         this.notificationPromise = vscode.window
-            .showWarningMessage(`${title}\n${message}`, texts.confirmMessage, texts.snoozeButton);
+            .showInformationMessage(`${title}\n${message}`, texts.confirmMessage, texts.snoozeButton);
         
         this.notificationPromise.then(selection => {
             // 清理通知引用

@@ -138,11 +138,46 @@ ${texts.weekStats}:
             // 重置所有计时器
             resetAllTimers();
             
-            vscode.window.showInformationMessage('所有提醒已清理，计时器已重置');
+            // 强制重启活动检测服务
+            const { getActivityDetectionService } = require('./services/activityDetectionService');
+            try {
+                getActivityDetectionService().restart();
+            } catch (error) {
+                console.error('重启活动检测服务失败:', error);
+            }
+            
+            // 显示成功消息
+            vscode.window.showInformationMessage('所有提醒已清理，计时器已重置。如果通知仍然存在，请重启VS Code。');
             console.log('紧急清理：所有提醒已停止');
         } catch (error) {
             console.error('清理提醒失败:', error);
             vscode.window.showErrorMessage('清理提醒失败，请重启VS Code');
+        }
+    });
+
+    // 注册强制重启插件命令
+    const forceRestartCommand = vscode.commands.registerCommand('movedYet.forceRestart', () => {
+        try {
+            // 停止所有服务
+            clearAllTimers();
+            stopActivityDetectionService();
+            
+            const progressiveService = require('./services/progressiveReminderService').getProgressiveReminderService();
+            progressiveService.stopProgressiveReminder();
+            
+            // 重新初始化所有服务
+            setTimeout(() => {
+                initHistoryService(context);
+                initProgressiveReminderService();
+                initActivityDetectionService();
+                startTimers();
+                
+                vscode.window.showInformationMessage('插件已强制重启，所有提醒已清理');
+            }, 1000);
+            
+        } catch (error) {
+            console.error('强制重启失败:', error);
+            vscode.window.showErrorMessage('强制重启失败，请手动重启VS Code');
         }
     });
 
@@ -194,6 +229,7 @@ ${texts.weekStats}:
         pauseWorkTimerCommand,
         resumeWorkTimerCommand,
         clearAllRemindersCommand,
+        forceRestartCommand,
         confirmFromStatusBarCommand,
         confirmReminderCommand
     );
