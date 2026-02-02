@@ -101,12 +101,14 @@ jobs:
     
     - name: Publish to VS Code Marketplace
       if: ${{ !contains(github.ref_name, 'beta') && !contains(github.ref_name, 'alpha') }}
+      continue-on-error: true
       run: vsce publish --packagePath ${{ steps.package.outputs.vsix_file }}
       env:
         VSCE_PAT: ${{ secrets.VSCE_PAT }}
     
     - name: Publish to Open VSX Registry
       if: ${{ !contains(github.ref_name, 'beta') && !contains(github.ref_name, 'alpha') }}
+      continue-on-error: true
       run: ovsx publish ${{ steps.package.outputs.vsix_file }}
       env:
         OVSX_PAT: ${{ secrets.OVSX_PAT }}
