@@ -1,9 +1,10 @@
 import * as vscode from 'vscode';
-import { getTexts } from './services/configService';
+import { getTexts, getConfig } from './services/configService';
 import { startTimers, resetAllTimers, clearAllTimers } from './services/timerService';
 import { showCurrentStatus } from './services/statusService';
 import { initHistoryService, getHistoryService } from './services/historyService';
 import { initProgressiveReminderService } from './services/progressiveReminderService';
+import { initActivityDetectionService, stopActivityDetectionService } from './services/activityDetectionService';
 import { showHealthDashboard } from './ui/dashboardUI';
 // 导入reminderUI以确保提醒函数被正确注册
 // 这是解决循环依赖的关键步骤
@@ -28,6 +29,7 @@ export function activate(context: vscode.ExtensionContext) {
     // 初始化服务
     initHistoryService(context);
     initProgressiveReminderService();
+    initActivityDetectionService();
 
     // 注册重置计时器命令
     const resetCommand = vscode.commands.registerCommand('movedYet.resetTimers', () => {
@@ -74,6 +76,30 @@ ${texts.weekStats}:
         showHealthDashboard(context);
     });
 
+    // 注册测试活动检测命令
+    const testActivityCommand = vscode.commands.registerCommand('movedYet.testActivityDetection', () => {
+        const currentConfig = getConfig();
+        if (!currentConfig.enableActivityDetection) {
+            vscode.window.showWarningMessage('活动检测功能已禁用，请在设置中启用');
+            return;
+        }
+
+        try {
+            const { getActivityDetectionService } = require('./services/activityDetectionService');
+            const activityService = getActivityDetectionService();
+            const inactivityDuration = activityService.getInactivityDuration();
+            
+            vscode.window.showInformationMessage(
+                `活动检测状态:\n` +
+                `- 启用状态: ${activityService.isActive() ? '已启用' : '已禁用'}\n` +
+                `- 无活动时长: ${inactivityDuration} 分钟\n` +
+                `- 重置阈值: ${currentConfig.inactivityResetTime} 分钟`
+            );
+        } catch (error) {
+            vscode.window.showErrorMessage('活动检测服务未正确初始化');
+        }
+    });
+
     // 注册从状态栏确认提醒命令（用于渐进式提醒）
     const confirmFromStatusBarCommand = vscode.commands.registerCommand('movedYet.confirmFromStatusBar', () => {
         // 停止渐进式提醒
@@ -118,6 +144,7 @@ ${texts.weekStats}:
         statusCommand, 
         historyCommand, 
         dashboardCommand,
+        testActivityCommand,
         confirmFromStatusBarCommand,
         confirmReminderCommand
     );
@@ -129,6 +156,13 @@ ${texts.weekStats}:
     vscode.workspace.onDidChangeConfiguration(e => {
         if (e.affectsConfiguration('movedYet')) {
             resetAllTimers();
+            // 重启活动检测服务以应用新配置
+            const { getActivityDetectionService } = require('./services/activityDetectionService');
+            try {
+                getActivityDetectionService().restart();
+            } catch (error) {
+                console.error('重启活动检测服务失败:', error);
+            }
         }
     });
 
@@ -151,6 +185,7 @@ ${texts.weekStats}:
  */
 export function deactivate() {
     clearAllTimers();
+    stopActivityDetectionService();
     
     // 保存最后的工作时长
     try {

@@ -2,7 +2,7 @@
     "name": "moved-yet",
     "displayName": "Moved Yet",
     "description": "动了么？—久坐和喝水强制提醒插件",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "publisher": "Immerse",
     "engines": {
         "vscode": "^1.100.0"
@@ -115,6 +115,10 @@
             {
                 "command": "movedYet.showDashboard",
                 "title": "动了么？: 查看运动仪表盘"
+            },
+            {
+                "command": "movedYet.testActivityDetection",
+                "title": "动了么？: 测试活动检测"
             }
         ]
     },

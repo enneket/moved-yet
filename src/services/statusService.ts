@@ -24,9 +24,23 @@ export function showCurrentStatus(): void {
         const drinkRemaining = config.drinkInterval - drinkElapsed;
         status += `${texts.drinkStatus}: ${
             drinkRemaining > 0 ? `${drinkRemaining}${texts.minutesLater}` : texts.comingSoon
-        }`;
+        }\n`;
     } else {
-        status += `${texts.drinkStatus}: ${texts.disabled}`;
+        status += `${texts.drinkStatus}: ${texts.disabled}\n`;
+    }
+
+    // 添加活动检测状态
+    if (config.enableActivityDetection) {
+        try {
+            const { getActivityDetectionService } = require('./activityDetectionService');
+            const activityService = getActivityDetectionService();
+            const inactivityDuration = activityService.getInactivityDuration();
+            status += `\n活动检测: 启用 (无活动 ${inactivityDuration} 分钟)`;
+        } catch (error) {
+            status += `\n活动检测: 启用`;
+        }
+    } else {
+        status += `\n活动检测: 已禁用`;
     }
 
     vscode.window.showInformationMessage(status);

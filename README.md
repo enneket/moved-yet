@@ -10,6 +10,7 @@
 - 🪑 **久坐提醒** - 默认60分钟，温柔提醒起身活动
 - 💧 **喝水提醒** - 默认45分钟，贴心提醒补充水分  
 - 🔔 **渐进式提醒** - 状态栏 → 通知 → 全屏，给你缓冲时间
+- 🖱️ **智能检测** - 监听鼠标键盘活动，无活动时自动重置计时器
 - 📊 **数据追踪** - 记录健康习惯，可视化仪表盘
 - 🌍 **多语言** - 中英文双语支持
 - 🎨 **美观界面** - 现代化设计，毛玻璃效果
@@ -46,6 +47,7 @@
 | `状态` | 查看当前提醒状态 |
 | `历史` | 查看统计数据 |
 | `仪表盘` | 打开可视化面板 |
+| `测试活动检测` | 查看活动检测状态 |
 
 > 📖 **详细命令说明** → [功能指南](docs/功能指南.md#-命令使用)
 
@@ -68,6 +70,14 @@
     "movedYet.enableProgressiveReminder": true,   // 启用渐进式提醒
     "movedYet.progressiveReminderLevel1Duration": 5,  // 第一级持续时间
     "movedYet.progressiveReminderLevel2Duration": 5   // 第二级持续时间
+}
+```
+
+### 活动检测
+```json
+{
+    "movedYet.enableActivityDetection": true,     // 启用鼠标键盘活动检测
+    "movedYet.inactivityResetTime": 5            // 无活动重置时间（分钟）
 }
 ```
 
@@ -98,7 +108,7 @@ npm install -g @vscode/vsce
 vsce package
 
 # 方法二：使用项目脚本
-./package-vsix.sh
+./sh/package-vsix.sh
 ```
 
 > 🛠️ **完整开发指南** → [开发指南](docs/开发指南.md)  
