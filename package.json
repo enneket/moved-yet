@@ -167,7 +167,7 @@
         "watch": "tsc -watch -p ./",
         "pretest": "pnpm run compile && pnpm run lint",
         "lint": "eslint src",
-        "test": "node ./out/test/runTest.js"
+        "test": "xvfb-run -a node ./out/test/runTest.js"
     },
     "devDependencies": {
         "@types/glob": "^8.1.0",

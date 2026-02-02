@@ -1,13 +1,12 @@
 import * as assert from 'assert';
 import * as sinon from 'sinon';
-import { timerState, startTimers, clearAllTimers, resetAllTimers, resetSitTimer, resetDrinkTimer } from '../../services/timerService';
+import { timerState, startTimers, clearAllTimers, resetAllTimers, resetSitTimer, resetDrinkTimer, setSitReminderFunction, setDrinkReminderFunction } from '../../services/timerService';
 import * as configService from '../../services/configService';
-import * as reminderUI from '../../ui/reminderUI';
 
 suite('TimerService Test Suite', () => {
     let configStub: sinon.SinonStub;
-    let showSitReminderStub: sinon.SinonStub;
-    let showDrinkReminderStub: sinon.SinonStub;
+    let sitReminderSpy: sinon.SinonSpy;
+    let drinkReminderSpy: sinon.SinonSpy;
     let clock: sinon.SinonFakeTimers;
 
     setup(() => {
@@ -24,9 +23,13 @@ suite('TimerService Test Suite', () => {
             language: 'zh-CN'
         });
 
-        // 存根提醒UI
-        showSitReminderStub = sinon.stub(reminderUI, 'showSitReminder').resolves();
-        showDrinkReminderStub = sinon.stub(reminderUI, 'showDrinkReminder').resolves();
+        // 创建提醒函数的 spy
+        sitReminderSpy = sinon.spy();
+        drinkReminderSpy = sinon.spy();
+        
+        // 注入提醒函数
+        setSitReminderFunction(sitReminderSpy);
+        setDrinkReminderFunction(drinkReminderSpy);
 
         // 重置计时器状态
         timerState.sitTimer = null;
@@ -38,8 +41,6 @@ suite('TimerService Test Suite', () => {
     teardown(() => {
         // 恢复所有存根
         configStub.restore();
-        showSitReminderStub.restore();
-        showDrinkReminderStub.restore();
         clock.restore();
     });
 
@@ -49,13 +50,13 @@ suite('TimerService Test Suite', () => {
         assert.notStrictEqual(timerState.sitTimer, null, 'Sit timer should be initialized');
         assert.notStrictEqual(timerState.drinkTimer, null, 'Drink timer should be initialized');
 
-        // 前进60分钟，触发久坐提醒
-        clock.tick(60 * 60 * 1000);
-        assert.strictEqual(showSitReminderStub.calledOnce, true, 'Sit reminder should be called after 60 minutes');
+        // 前进45分钟，触发喝水提醒
+        clock.tick(45 * 60 * 1000);
+        assert.strictEqual(drinkReminderSpy.calledOnce, true, 'Drink reminder should be called after 45 minutes');
 
-        // 再前进15分钟（总共75分钟），确保喝水提醒也被触发
+        // 再前进15分钟（总共60分钟），确保久坐提醒也被触发
         clock.tick(15 * 60 * 1000);
-        assert.strictEqual(showDrinkReminderStub.calledOnce, true, 'Drink reminder should be called after 45 minutes');
+        assert.strictEqual(sitReminderSpy.calledOnce, true, 'Sit reminder should be called after 60 minutes');
     });
 
     test('clearAllTimers should clear all timers', () => {
@@ -73,8 +74,8 @@ suite('TimerService Test Suite', () => {
 
         // 前进很长时间，确保没有提醒被触发
         clock.tick(120 * 60 * 1000);
-        assert.strictEqual(showSitReminderStub.notCalled, true, 'Sit reminder should not be called after clearing timers');
-        assert.strictEqual(showDrinkReminderStub.notCalled, true, 'Drink reminder should not be called after clearing timers');
+        assert.strictEqual(sitReminderSpy.notCalled, true, 'Sit reminder should not be called after clearing timers');
+        assert.strictEqual(drinkReminderSpy.notCalled, true, 'Drink reminder should not be called after clearing timers');
     });
 
     test('resetAllTimers should clear and restart all timers', () => {
@@ -141,7 +142,7 @@ suite('TimerService Test Suite', () => {
 
         // 前进很长时间，确保没有提醒被触发
         clock.tick(120 * 60 * 1000);
-        assert.strictEqual(showSitReminderStub.notCalled, true, 'Sit reminder should not be called when disabled');
-        assert.strictEqual(showDrinkReminderStub.notCalled, true, 'Drink reminder should not be called when disabled');
+        assert.strictEqual(sitReminderSpy.notCalled, true, 'Sit reminder should not be called when disabled');
+        assert.strictEqual(drinkReminderSpy.notCalled, true, 'Drink reminder should not be called when disabled');
     });
 });

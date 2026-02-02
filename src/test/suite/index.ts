@@ -1,11 +1,11 @@
 import * as path from 'path';
-import * as Mocha from 'mocha';
 import { glob } from 'glob';
-import * as fs from 'fs';
+// 使用正确的 Mocha 导入方式
+const Mocha = require('mocha');
 
 export function run(): Promise<void> {
     // 创建 mocha 测试
-    const mocha = new (Mocha as any)({
+    const mocha = new Mocha({
         ui: 'tdd',
         color: true
     });

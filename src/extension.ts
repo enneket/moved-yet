@@ -406,7 +406,7 @@ ${!timerState.drinkTimer && config.enableDrink ? '2. 运行"强制重启插件"�
     );
 
     // 监听配置变化，当健康提醒配置改变时重置计时器
-    vscode.workspace.onDidChangeConfiguration(e => {
+    const configChangeListener = vscode.workspace.onDidChangeConfiguration(e => {
         if (e.affectsConfiguration('movedYet')) {
             resetAllTimers();
             // 重启活动检测服务以应用新配置
@@ -418,6 +418,8 @@ ${!timerState.drinkTimer && config.enableDrink ? '2. 运行"强制重启插件"�
             }
         }
     });
+    
+    context.subscriptions.push(configChangeListener);
 
     // 定期更新工作时长（每10分钟）
     const workTimeInterval = setInterval(() => {
