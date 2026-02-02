@@ -5,6 +5,7 @@ import { showCurrentStatus } from './services/statusService';
 import { initHistoryService, getHistoryService } from './services/historyService';
 import { initProgressiveReminderService } from './services/progressiveReminderService';
 import { initActivityDetectionService, stopActivityDetectionService } from './services/activityDetectionService';
+import { initDailyReportService, getDailyReportService } from './services/dailyReportService';
 import { showHealthDashboard } from './ui/dashboardUI';
 // 导入reminderUI以确保提醒函数被正确注册
 // 这是解决循环依赖的关键步骤
@@ -29,6 +30,7 @@ export function activate(context: vscode.ExtensionContext) {
     // 初始化服务（注意顺序：先初始化不依赖计时器的服务）
     initHistoryService(context);
     initProgressiveReminderService();
+    initDailyReportService(context);
     
     // 先启动计时器，再启动活动检测
     // 这样可以避免活动检测在计时器启动前就触发重置
@@ -38,6 +40,20 @@ export function activate(context: vscode.ExtensionContext) {
     // 最后启动活动检测服务
     console.log('启动活动检测服务...');
     initActivityDetectionService();
+
+    // 检查是否需要显示每日健康报告
+    // 延迟5秒显示，避免启动时打扰用户
+    setTimeout(() => {
+        const reportService = getDailyReportService();
+        if (reportService.shouldShowDailyReport()) {
+            const historyService = getHistoryService();
+            const todayStats = historyService.getTodayStats();
+            // 只有当今天有数据时才显示报告
+            if (todayStats && (todayStats.sitCount > 0 || todayStats.drinkCount > 0)) {
+                reportService.showDailyReport();
+            }
+        }
+    }, 5000);
 
     // 注册重置计时器命令
     const resetCommand = vscode.commands.registerCommand('movedYet.resetTimers', () => {
@@ -82,6 +98,11 @@ ${texts.weekStats}:
     // 注册查看仪表盘命令
     const dashboardCommand = vscode.commands.registerCommand('movedYet.showDashboard', () => {
         showHealthDashboard(context);
+    });
+
+    // 注册查看每日报告命令
+    const dailyReportCommand = vscode.commands.registerCommand('movedYet.showDailyReport', () => {
+        getDailyReportService().showDailyReport();
     });
 
     // 注册测试活动检测命令
@@ -392,6 +413,7 @@ ${!timerState.drinkTimer && config.enableDrink ? '2. 运行"强制重启插件"�
         statusCommand, 
         historyCommand, 
         dashboardCommand,
+        dailyReportCommand,
         testActivityCommand,
         pauseWorkTimerCommand,
         resumeWorkTimerCommand,

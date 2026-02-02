@@ -189,7 +189,7 @@ function generateReminderHTML(title: string, message: string, buttonText: string
                     ? '-apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Helvetica Neue", Arial, sans-serif'
                     : '-apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", sans-serif'
             };
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--vscode-editor-background);
             height: 100vh;
             display: flex;
             justify-content: center;
@@ -203,17 +203,30 @@ function generateReminderHTML(title: string, message: string, buttonText: string
             z-index: 999999;
         }
 
+        /* 半透明遮罩层 */
+        body::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: var(--vscode-editor-background);
+            opacity: 0.95;
+            z-index: -1;
+        }
+
         .reminder-container {
-            background: rgba(255, 255, 255, 0.95);
+            background: var(--vscode-editor-inactiveSelectionBackground);
             backdrop-filter: blur(10px);
+            border: 2px solid var(--vscode-panel-border);
             border-radius: 20px;
             padding: 60px 80px;
             text-align: center;
-            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.2);
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
             max-width: 600px;
             width: 90%;
             animation: slideIn 0.5s ease-out;
-            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         @keyframes slideIn {
@@ -229,36 +242,37 @@ function generateReminderHTML(title: string, message: string, buttonText: string
 
         .title {
             font-size: 2.5em;
-            color: #333;
+            color: var(--vscode-editor-foreground);
             margin-bottom: 20px;
             font-weight: 600;
         }
 
         .message {
             font-size: 1.2em;
-            color: #666;
+            color: var(--vscode-descriptionForeground);
             line-height: 1.6;
             margin-bottom: 40px;
         }
 
         .confirm-btn {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
+            background: var(--vscode-button-background);
+            color: var(--vscode-button-foreground);
             border: none;
             padding: 15px 40px;
             font-size: 1.1em;
-            border-radius: 50px;
+            border-radius: 8px;
             cursor: pointer;
             transition: all 0.3s ease;
             font-weight: 500;
-            box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
             opacity: 1;
             pointer-events: auto;
         }
 
         .confirm-btn:hover {
+            background: var(--vscode-button-hoverBackground);
             transform: translateY(-2px);
-            box-shadow: 0 12px 25px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.3);
         }
 
         .pulse {

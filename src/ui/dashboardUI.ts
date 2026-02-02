@@ -87,9 +87,9 @@ function generateDashboardHTML(webview: vscode.Webview, context: vscode.Extensio
                     ? '-apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", sans-serif'
                     : '-apple-system, "PingFang SC", "Microsoft YaHei", sans-serif'
             };
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--vscode-editor-background);
             padding: 20px;
-            color: #333;
+            color: var(--vscode-editor-foreground);
         }
 
         .container {
@@ -99,13 +99,21 @@ function generateDashboardHTML(webview: vscode.Webview, context: vscode.Extensio
 
         .header {
             text-align: center;
-            color: white;
+            background: var(--vscode-editor-inactiveSelectionBackground);
+            border: 1px solid var(--vscode-panel-border);
+            border-radius: 15px;
+            padding: 30px;
             margin-bottom: 30px;
         }
 
         .header h1 {
             font-size: 2.5em;
             margin-bottom: 10px;
+            color: var(--vscode-editor-foreground);
+        }
+
+        .header p {
+            color: var(--vscode-descriptionForeground);
         }
 
         .stats-grid {
@@ -116,21 +124,22 @@ function generateDashboardHTML(webview: vscode.Webview, context: vscode.Extensio
         }
 
         .stat-card {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
+            background: var(--vscode-editor-inactiveSelectionBackground);
+            border: 1px solid var(--vscode-panel-border);
             border-radius: 15px;
             padding: 25px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-            transition: transform 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
         }
 
         .stat-card:hover {
             transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
         }
 
         .stat-card h3 {
             font-size: 0.9em;
-            color: #666;
+            color: var(--vscode-descriptionForeground);
             margin-bottom: 10px;
             text-transform: uppercase;
         }
@@ -138,27 +147,27 @@ function generateDashboardHTML(webview: vscode.Webview, context: vscode.Extensio
         .stat-card .value {
             font-size: 2.5em;
             font-weight: bold;
-            color: #667eea;
+            color: var(--vscode-textLink-foreground);
             margin-bottom: 5px;
         }
 
         .stat-card .label {
             font-size: 0.85em;
-            color: #999;
+            color: var(--vscode-descriptionForeground);
         }
 
         .chart-container {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(10px);
+            background: var(--vscode-editor-inactiveSelectionBackground);
+            border: 1px solid var(--vscode-panel-border);
             border-radius: 15px;
             padding: 25px;
             margin-bottom: 20px;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
 
         .chart-container h2 {
             margin-bottom: 20px;
-            color: #333;
+            color: var(--vscode-editor-foreground);
         }
 
         .actions {
@@ -169,30 +178,37 @@ function generateDashboardHTML(webview: vscode.Webview, context: vscode.Extensio
         }
 
         button {
-            background: linear-gradient(135deg, #667eea, #764ba2);
-            color: white;
+            background: var(--vscode-button-background);
+            color: var(--vscode-button-foreground);
             border: none;
             padding: 12px 30px;
-            border-radius: 25px;
+            border-radius: 8px;
             cursor: pointer;
             font-size: 1em;
             transition: all 0.3s ease;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
         }
 
         button:hover {
+            background: var(--vscode-button-hoverBackground);
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
         }
 
         button.danger {
-            background: linear-gradient(135deg, #f093fb, #f5576c);
+            background: var(--vscode-errorForeground);
+            color: white;
+        }
+
+        button.danger:hover {
+            opacity: 0.9;
         }
 
         .no-data {
             text-align: center;
             padding: 40px;
-            color: #666;
+            color: var(--vscode-descriptionForeground);
+            background: var(--vscode-editor-inactiveSelectionBackground);
+            border: 1px solid var(--vscode-panel-border);
+            border-radius: 15px;
         }
 
         canvas {

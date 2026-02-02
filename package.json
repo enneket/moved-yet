@@ -103,6 +103,11 @@
                     "minimum": 0,
                     "maximum": 10,
                     "description": "提醒确认倒计时时间（秒），设为0则立即可点击"
+                },
+                "movedYet.enableDailyReport": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "启用每日健康报告（每天首次启动时显示）"
                 }
             }
         },
@@ -122,6 +127,10 @@
             {
                 "command": "movedYet.showDashboard",
                 "title": "Moved Yet: View Health Dashboard"
+            },
+            {
+                "command": "movedYet.showDailyReport",
+                "title": "Moved Yet: View Daily Health Report"
             },
             {
                 "command": "movedYet.testActivityDetection",

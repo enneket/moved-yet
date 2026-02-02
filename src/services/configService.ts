@@ -17,6 +17,7 @@ export function getConfig(): Config {
         progressiveReminderLevel2Duration: config.get<number>('progressiveReminderLevel2Duration', 5),
         enableActivityDetection: config.get<boolean>('enableActivityDetection', true),
         inactivityResetTime: config.get<number>('inactivityResetTime', 5),
+        enableDailyReport: config.get<boolean>('enableDailyReport', true),
     };
 }
 

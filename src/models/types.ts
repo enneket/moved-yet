@@ -51,6 +51,7 @@ export interface Config {
     progressiveReminderLevel2Duration: number; // 第二级持续时间（分钟）
     enableActivityDetection: boolean; // 启用活动检测
     inactivityResetTime: number; // 无活动重置时间（分钟）
+    enableDailyReport: boolean; // 启用每日健康报告
 }
 
 export interface ReminderRecord {
