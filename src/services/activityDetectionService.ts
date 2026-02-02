@@ -117,20 +117,26 @@ class ActivityDetectionService {
         const config = getConfig();
         const inactivityThreshold = config.inactivityResetTime * 60 * 1000; // 转换为毫秒
 
-        // 如果距离上次活动时间超过阈值，说明用户刚从长时间无活动状态恢复
-        if (now - this.lastActivityTime > inactivityThreshold) {
-            console.log(`检测到用户活动恢复，重置所有计时器（无活动时间: ${Math.round((now - this.lastActivityTime) / 60000)} 分钟）`);
-            resetAllTimers();
-            
-            // 显示提示信息
-            const texts = require('./configService').getTexts();
-            vscode.window.showInformationMessage(
-                `${texts.resetMessage} - 检测到您刚回到工作状态`
-            );
-        }
+        try {
+            // 如果距离上次活动时间超过阈值，说明用户刚从长时间无活动状态恢复
+            if (now - this.lastActivityTime > inactivityThreshold) {
+                console.log(`检测到用户活动恢复，重置所有计时器（无活动时间: ${Math.round((now - this.lastActivityTime) / 60000)} 分钟）`);
+                resetAllTimers();
+                
+                // 显示提示信息
+                const texts = require('./configService').getTexts();
+                vscode.window.showInformationMessage(
+                    `${texts.resetMessage} - 检测到您刚回到工作状态`
+                );
+            }
 
-        this.lastActivityTime = now;
-        this.startInactivityTimer();
+            this.lastActivityTime = now;
+            this.startInactivityTimer();
+        } catch (error) {
+            console.error('活动检测处理错误:', error);
+            // 发生错误时仍然更新活动时间，避免功能完全失效
+            this.lastActivityTime = now;
+        }
     }
 
     /**
@@ -142,16 +148,20 @@ class ActivityDetectionService {
             clearTimeout(this.inactivityTimer);
         }
 
-        const config = getConfig();
-        const inactivityTime = config.inactivityResetTime * 60 * 1000; // 转换为毫秒
+        try {
+            const config = getConfig();
+            const inactivityTime = config.inactivityResetTime * 60 * 1000; // 转换为毫秒
 
-        // 设置新的定时器
-        this.inactivityTimer = setTimeout(() => {
-            if (this.isEnabled) {
-                console.log(`用户无活动超过 ${config.inactivityResetTime} 分钟，等待活动恢复...`);
-                // 不在这里重置计时器，而是等待下次活动时重置
-            }
-        }, inactivityTime);
+            // 设置新的定时器
+            this.inactivityTimer = setTimeout(() => {
+                if (this.isEnabled) {
+                    console.log(`用户无活动超过 ${config.inactivityResetTime} 分钟，等待活动恢复...`);
+                    // 不在这里重置计时器，而是等待下次活动时重置
+                }
+            }, inactivityTime);
+        } catch (error) {
+            console.error('启动无活动检测定时器错误:', error);
+        }
     }
 
     /**

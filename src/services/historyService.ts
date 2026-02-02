@@ -28,8 +28,20 @@ export class HistoryService {
      * 获取历史数据
      */
     getHistory(): HistoryData {
-        const history = this.context.globalState.get<HistoryData>(HISTORY_KEY);
-        if (!history) {
+        try {
+            const history = this.context.globalState.get<HistoryData>(HISTORY_KEY);
+            if (!history) {
+                return {
+                    dailyStats: {},
+                    totalSitReminders: 0,
+                    totalDrinkReminders: 0,
+                    totalWorkTime: 0,
+                };
+            }
+            return history;
+        } catch (error) {
+            console.error('获取历史数据失败:', error);
+            // 返回默认数据，确保功能不中断
             return {
                 dailyStats: {},
                 totalSitReminders: 0,
@@ -37,86 +49,101 @@ export class HistoryService {
                 totalWorkTime: 0,
             };
         }
-        return history;
     }
 
     /**
      * 保存历史数据
      */
     private async saveHistory(history: HistoryData): Promise<void> {
-        await this.context.globalState.update(HISTORY_KEY, history);
+        try {
+            await this.context.globalState.update(HISTORY_KEY, history);
+        } catch (error) {
+            console.error('保存历史数据失败:', error);
+            // 即使保存失败，也不应该影响主要功能
+        }
     }
 
     /**
      * 记录提醒
      */
     async recordReminder(type: 'sit' | 'drink', confirmed: boolean, snoozed: boolean = false): Promise<void> {
-        const history = this.getHistory();
-        const today = this.getTodayDate();
+        try {
+            const history = this.getHistory();
+            const today = this.getTodayDate();
 
-        // 创建提醒记录
-        const record: ReminderRecord = {
-            id: `${type}-${Date.now()}`,
-            type,
-            timestamp: Date.now(),
-            confirmed,
-            snoozed,
-        };
-
-        // 获取或创建今日统计
-        if (!history.dailyStats[today]) {
-            history.dailyStats[today] = {
-                date: today,
-                sitCount: 0,
-                drinkCount: 0,
-                workTimeMinutes: 0,
-                records: [],
+            // 创建提醒记录
+            const record: ReminderRecord = {
+                id: `${type}-${Date.now()}`,
+                type,
+                timestamp: Date.now(),
+                confirmed,
+                snoozed,
             };
-        }
 
-        const dailyStats = history.dailyStats[today];
-        dailyStats.records.push(record);
-
-        // 更新计数
-        if (confirmed) {
-            if (type === 'sit') {
-                dailyStats.sitCount++;
-                history.totalSitReminders++;
-            } else {
-                dailyStats.drinkCount++;
-                history.totalDrinkReminders++;
+            // 获取或创建今日统计
+            if (!history.dailyStats[today]) {
+                history.dailyStats[today] = {
+                    date: today,
+                    sitCount: 0,
+                    drinkCount: 0,
+                    workTimeMinutes: 0,
+                    records: [],
+                };
             }
-        }
 
-        await this.saveHistory(history);
+            const dailyStats = history.dailyStats[today];
+            dailyStats.records.push(record);
+
+            // 更新计数
+            if (confirmed) {
+                if (type === 'sit') {
+                    dailyStats.sitCount++;
+                    history.totalSitReminders++;
+                } else {
+                    dailyStats.drinkCount++;
+                    history.totalDrinkReminders++;
+                }
+            }
+
+            await this.saveHistory(history);
+        } catch (error) {
+            console.error('记录提醒失败:', error);
+            // 记录失败不应该影响主要功能
+        }
     }
 
     /**
      * 更新工作时长
      */
     async updateWorkTime(): Promise<void> {
-        const history = this.getHistory();
-        const today = this.getTodayDate();
+        try {
+            const history = this.getHistory();
+            const today = this.getTodayDate();
 
-        if (!history.dailyStats[today]) {
-            history.dailyStats[today] = {
-                date: today,
-                sitCount: 0,
-                drinkCount: 0,
-                workTimeMinutes: 0,
-                records: [],
-            };
+            if (!history.dailyStats[today]) {
+                history.dailyStats[today] = {
+                    date: today,
+                    sitCount: 0,
+                    drinkCount: 0,
+                    workTimeMinutes: 0,
+                    records: [],
+                };
+            }
+
+            // 计算本次会话的工作时长（分钟）
+            const sessionMinutes = Math.floor((Date.now() - this.sessionStartTime) / 1000 / 60);
+            history.dailyStats[today].workTimeMinutes += sessionMinutes;
+            history.totalWorkTime += sessionMinutes;
+
+            // 重置会话开始时间
+            this.sessionStartTime = Date.now();
+
+            await this.saveHistory(history);
+        } catch (error) {
+            console.error('更新工作时长失败:', error);
+            // 重置会话开始时间，避免下次计算错误
+            this.sessionStartTime = Date.now();
         }
-
-        // 计算本次会话的工作时长（分钟）
-        const sessionMinutes = Math.floor((Date.now() - this.sessionStartTime) / 1000 / 60);
-        history.dailyStats[today].workTimeMinutes += sessionMinutes;
-        history.totalWorkTime += sessionMinutes;
-
-        // 重置会话开始时间
-        this.sessionStartTime = Date.now();
-
-        await this.saveHistory(history);
     }
 
     /**
