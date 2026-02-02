@@ -126,7 +126,8 @@ if pnpm run lint > /dev/null 2>&1; then
     LINT_RESULT=1
 else
     # 检查是否只有警告
-    if pnpm run lint 2>&1 | grep -q "error" && ! pnpm run lint 2>&1 | grep -q "warning"; then
+    LINT_OUTPUT=$(pnpm run lint 2>&1)
+    if echo "$LINT_OUTPUT" | grep -q "error"; then
         log_error "ESLint 检查发现错误"
         LINT_RESULT=0
     else

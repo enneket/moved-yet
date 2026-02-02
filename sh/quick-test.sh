@@ -58,7 +58,7 @@ if [ -f "moved-yet-0.0.1.vsix" ]; then
     fi
     
     # 检查包内容
-    CONTENT=$(pnpm exec vsce ls 2>/dev/null)
+    CONTENT=$(pnpm exec vsce ls --no-dependencies 2>/dev/null)
     if echo "$CONTENT" | grep -q "out/extension.js"; then
         echo -e "${GREEN}✅ 包内容正确${NC}"
         ((TESTS++))

@@ -84,6 +84,7 @@ check_config_integration() {
 check_config_integration "enableActivityDetection" "src/services/configService.ts" "活动检测配置集成"
 check_config_integration "inactivityResetTime" "src/services/configService.ts" "重置时间配置集成"
 check_config_integration "enableProgressiveReminder" "src/services/configService.ts" "渐进式提醒配置集成"
+check_config_integration "enableDailyReport" "src/services/configService.ts" "每日报告配置集成"
 
 echo ""
 log_info "3. 服务间通信集成测试"
@@ -123,6 +124,7 @@ check_command_integration() {
 check_command_integration "movedYet.resetTimers" "重置计时器命令集成"
 check_command_integration "movedYet.showStatus" "显示状态命令集成"
 check_command_integration "movedYet.testActivityDetection" "测试活动检测命令集成"
+check_command_integration "movedYet.showDailyReport" "每日健康报告命令集成"
 
 echo ""
 log_info "6. 数据流集成测试"

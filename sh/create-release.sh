@@ -79,7 +79,7 @@ fi
 
 # 更新版本号
 print_info "更新 package.json 中的版本号..."
-pnpm version $NEW_VERSION --no-git-tag-version
+npm version $NEW_VERSION --no-git-tag-version
 
 # 检查并更新 CHANGELOG
 CHANGELOG_FILE="docs/CHANGELOG.md"
@@ -109,10 +109,10 @@ pnpm run lint
 # 构建包
 print_info "构建 VSIX 包..."
 if command -v vsce &> /dev/null; then
-    vsce package
+    vsce package --no-dependencies
 else
     print_warning "vsce 未安装，使用 pnpm exec"
-    pnpm exec vsce package
+    pnpm exec vsce package --no-dependencies
 fi
 
 VSIX_FILE="moved-yet-$NEW_VERSION.vsix"

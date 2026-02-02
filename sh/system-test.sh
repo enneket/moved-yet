@@ -177,6 +177,7 @@ check_e2e_config "movedYet.sitReminderInterval" "久坐提醒间隔"
 check_e2e_config "movedYet.drinkReminderInterval" "喝水提醒间隔"
 check_e2e_config "movedYet.enableActivityDetection" "活动检测开关"
 check_e2e_config "movedYet.inactivityResetTime" "无活动重置时间"
+check_e2e_config "movedYet.enableDailyReport" "每日健康报告开关"
 
 # 检查所有命令的定义
 check_e2e_command() {
@@ -196,6 +197,7 @@ check_e2e_command "movedYet.showStatus" "显示状态"
 check_e2e_command "movedYet.testActivityDetection" "测试活动检测"
 check_e2e_command "movedYet.showHistory" "查看历史"
 check_e2e_command "movedYet.showDashboard" "查看仪表盘"
+check_e2e_command "movedYet.showDailyReport" "查看每日报告"
 
 echo ""
 log_info "4. 多环境兼容性系统测试"

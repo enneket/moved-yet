@@ -129,7 +129,7 @@ log_info "6. 包内容验证"
 echo "----------------------------------------"
 
 # 检查包内容
-PACKAGE_CONTENT=$(pnpm exec vsce ls 2>/dev/null || echo "")
+PACKAGE_CONTENT=$(pnpm exec vsce ls --no-dependencies 2>/dev/null || echo "")
 
 check_package_content() {
     local file_pattern="$1"
@@ -188,7 +188,9 @@ check_package_config() {
 if command -v jq > /dev/null 2>&1; then
     check_package_config '.contributes.configuration.properties."movedYet.enableActivityDetection"' "活动检测配置"
     check_package_config '.contributes.configuration.properties."movedYet.inactivityResetTime"' "无活动重置时间配置"
+    check_package_config '.contributes.configuration.properties."movedYet.enableDailyReport"' "每日报告配置"
     check_package_config '.contributes.commands[] | select(.command == "movedYet.testActivityDetection")' "测试活动检测命令"
+    check_package_config '.contributes.commands[] | select(.command == "movedYet.showDailyReport")' "每日报告命令"
     check_package_config '.version' "版本号"
 else
     log_warning "跳过配置检查 (需要安装 jq)"
@@ -203,7 +205,7 @@ if [ -f "moved-yet-0.0.1.vsix" ]; then
     log_info "尝试安装扩展进行测试..."
     
     # 检查是否已安装
-    if code --list-extensions | grep -q "Immerse.moved-yet"; then
+    if code --list-extensions | grep -q "enneket.moved-yet"; then
         log_warning "扩展已安装，跳过安装测试"
     else
         # 尝试安装
@@ -212,7 +214,7 @@ if [ -f "moved-yet-0.0.1.vsix" ]; then
             ((TOTAL_TESTS++))
             
             # 验证安装
-            if code --list-extensions | grep -q "Immerse.moved-yet"; then
+            if code --list-extensions | grep -q "enneket.moved-yet"; then
                 log_success "扩展安装验证"
                 ((TOTAL_TESTS++))
             else

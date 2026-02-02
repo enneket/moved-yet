@@ -26,11 +26,11 @@ pnpm run lint
 
 # 4. 创建 VSIX 包
 echo "📦 创建 VSIX 包..."
-pnpm exec vsce package
+pnpm exec vsce package --no-dependencies
 
 # 5. 验证包内容
 echo "🔍 验证包内容..."
-pnpm exec vsce ls --tree
+pnpm exec vsce ls --no-dependencies --tree
 
 # 6. 显示包信息
 VSIX_FILE="moved-yet-0.0.1.vsix"

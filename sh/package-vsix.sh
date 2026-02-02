@@ -54,7 +54,7 @@ cat > vsix-temp/extension.vsixmanifest << 'EOF'
 <?xml version="1.0" encoding="utf-8"?>
 <PackageManifest Version="2.0.0" xmlns="http://schemas.microsoft.com/developer/vsx-schema/2011" xmlns:d="http://schemas.microsoft.com/developer/vsx-schema-design/2011">
   <Metadata>
-    <Identity Language="en-US" Id="moved-yet" Version="0.0.1" Publisher="Immerse"/>
+    <Identity Language="en-US" Id="moved-yet" Version="0.0.1" Publisher="enneket"/>
     <DisplayName>Moved Yet</DisplayName>
     <Description xml:space="preserve">动了么？—久坐和喝水强制提醒插件</Description>
     <Tags>health,reminder,break,water,productivity,movement</Tags>
