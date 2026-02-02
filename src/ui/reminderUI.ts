@@ -57,10 +57,22 @@ export async function showSitReminder(): Promise<void> {
  * 确认后会重置喝水计时器
  */
 export async function showDrinkReminder(): Promise<void> {
+    console.log('showDrinkReminder called');
     const texts = getTexts();
+    console.log('Drink reminder texts:', {
+        title: texts.drinkReminderTitle,
+        message: texts.drinkReminderMessage,
+        button: texts.drinkReminderButton
+    });
+    
     await showReminderModal(texts.drinkReminderTitle, texts.drinkReminderMessage, texts.drinkReminderButton, () => {
+        console.log('Drink reminder onConfirm callback called');
+        console.log('Calling resetDrinkTimer...');
         resetDrinkTimer();
+        console.log('resetDrinkTimer completed');
+        console.log('Recording reminder history...');
         recordReminderHistory('drink', true);
+        console.log('Drink reminder process completed');
     });
 }
 
@@ -80,18 +92,6 @@ function recordReminderHistory(type: 'sit' | 'drink', confirmed: boolean): void 
 
 /**
  * 显示一个模态提醒窗口，阻止用户进行其他操作直到确认
- *
- * 实现了以下功能：
- * 1. 创建一个全屏WebView面板
- * 2. 阻止键盘输入和其他操作
- * 3. 确保面板始终保持在前台
- * 4. 用户确认后重置相应的计时器
- * 5. 释放所有资源
- *
- * @param title 提醒标题
- * @param message 提醒消息
- * @param buttonText 确认按钮文本
- * @param onConfirm 确认后的回调函数
  */
 async function showReminderModal(title: string, message: string, buttonText: string, onConfirm: () => void): Promise<void> {
     // 创建webview面板作为全屏模态窗口
@@ -118,31 +118,19 @@ async function showReminderModal(title: string, message: string, buttonText: str
     // 创建一个模态状态，阻止其他操作
     const disposables: vscode.Disposable[] = [];
 
-    // 添加状态栏提示
-    const statusBarItem = createBlockingStatusBarItem();
-    disposables.push(statusBarItem);
-
-    // 阻止键盘输入
-    const keyboardDisposable = blockKeyboardInput(panel);
-    disposables.push(keyboardDisposable);
-
-    // 阻止所有命令执行
-    const blockCommandsDisposable = blockAllCommands(panel);
-    disposables.push(blockCommandsDisposable);
-
-    // 阻止编辑器操作
-    const blockEditorDisposable = blockEditorOperations(panel);
-    disposables.push(blockEditorDisposable);
-
     // 处理webview消息
     const messageHandler = panel.webview.onDidReceiveMessage(message => {
+        console.log('Received message from webview:', message);
         if (message.command === 'confirm') {
+            console.log('Processing confirm command...');
             // 释放所有阻止操作的资源
             disposables.forEach(d => d.dispose());
             panel.dispose();
+            console.log('Calling onConfirm callback...');
             onConfirm();
             const texts = getTexts();
             vscode.window.showInformationMessage(texts.confirmMessage);
+            console.log('Confirm process completed');
         }
     });
     disposables.push(messageHandler);
@@ -152,147 +140,15 @@ async function showReminderModal(title: string, message: string, buttonText: str
         // 如果面板被关闭，也释放所有资源
         disposables.forEach(d => d.dispose());
     });
-
-    // 持续确保面板保持在前台
-    const interval = setInterval(() => {
-        if (panel.visible) {
-            panel.reveal(vscode.ViewColumn.One, true);
-        } else {
-            clearInterval(interval);
-        }
-    }, 300);
-
-    // 当确认后清除间隔
-    disposables.push({ dispose: () => clearInterval(interval) });
 }
 
 /**
- * 创建阻止操作的状态栏提示
- * 在状态栏显示警告消息，提醒用户当前处于提醒状态
- */
-function createBlockingStatusBarItem(): vscode.StatusBarItem {
-    const statusBarItem = vscode.window.createStatusBarItem(vscode.StatusBarAlignment.Right, 100);
-    statusBarItem.text = "$(alert) 健康提醒中，请先处理提醒";
-    statusBarItem.backgroundColor = new vscode.ThemeColor('statusBarItem.warningBackground');
-    statusBarItem.show();
-    return statusBarItem;
-}
-
-/**
- * 阻止键盘输入，将焦点重定向到提醒面板
- * 通过覆盖type命令，阻止用户在编辑器中输入文本
- * 当用户尝试输入时，会自动将焦点重定向到提醒面板
- */
-function blockKeyboardInput(panel: vscode.WebviewPanel): vscode.Disposable {
-    return vscode.commands.registerCommand('type', () => {
-        panel.reveal(vscode.ViewColumn.One, true);
-        return null;
-    }, null);
-}
-
-/**
- * 阻止所有常用命令执行
- * 通过覆盖常用命令，阻止用户执行各种操作
- */
-function blockAllCommands(panel: vscode.WebviewPanel): vscode.Disposable {
-    // 创建一个复合的disposable对象
-    const disposables: vscode.Disposable[] = [];
-
-    // 常见的命令列表
-    const commonCommands = [
-        'workbench.action.files.save',
-        'workbench.action.files.saveAs',
-        'workbench.action.files.saveAll',
-        'workbench.action.openSettings',
-        'workbench.action.closeActiveEditor',
-        'workbench.action.closeAllEditors',
-        'workbench.action.navigateBack',
-        'workbench.action.navigateForward',
-        'editor.action.formatDocument',
-        'editor.action.goToDeclaration',
-        'editor.action.goToDefinition',
-        'editor.action.referenceSearch.trigger',
-        'editor.action.rename',
-        'editor.action.sourceAction',
-        'editor.action.codeAction',
-        'editor.action.quickFix',
-        'editor.action.organizeImports',
-        'editor.action.clipboardCopyAction',
-        'editor.action.clipboardCutAction',
-        'editor.action.clipboardPasteAction',
-        'search.action.openNewEditor',
-        'search.action.openNewEditorToSide',
-        'workbench.action.quickOpen',
-        'workbench.action.showCommands',
-        'workbench.action.terminal.toggleTerminal',
-        'workbench.action.terminal.new',
-        'workbench.action.tasks.runTask',
-        'workbench.action.debug.start',
-        'workbench.action.debug.run',
-        'workbench.action.debug.stop',
-        'workbench.action.debug.restart',
-        'workbench.action.debug.continue',
-        'workbench.view.explorer',
-        'workbench.view.search',
-        'workbench.view.scm',
-        'workbench.view.debug',
-        'workbench.view.extensions'
-    ];
-
-    // 为每个命令注册一个拦截器
-    for (const cmd of commonCommands) {
-        const disposable = vscode.commands.registerCommand(cmd, () => {
-            panel.reveal(vscode.ViewColumn.One, true);
-            return null;
-        }, null);
-        disposables.push(disposable);
-    }
-
-    // 返回一个复合的disposable对象
-    return { dispose: () => disposables.forEach(d => d.dispose()) };
-}
-
-/**
- * 阻止编辑器操作
- * 通过监听编辑器变化事件，阻止用户进行编辑操作
- */
-function blockEditorOperations(panel: vscode.WebviewPanel): vscode.Disposable {
-    const disposables: vscode.Disposable[] = [];
-
-    // 监听编辑器选择变化事件
-    const selectionChangeDisposable = vscode.window.onDidChangeTextEditorSelection(() => {
-        panel.reveal(vscode.ViewColumn.One, true);
-    });
-    disposables.push(selectionChangeDisposable);
-
-    // 监听编辑器可见性变化事件
-    const visibilityChangeDisposable = vscode.window.onDidChangeVisibleTextEditors(() => {
-        panel.reveal(vscode.ViewColumn.One, true);
-    });
-    disposables.push(visibilityChangeDisposable);
-
-    // 监听活动编辑器变化事件
-    const activeEditorChangeDisposable = vscode.window.onDidChangeActiveTextEditor(() => {
-        panel.reveal(vscode.ViewColumn.One, true);
-    });
-    disposables.push(activeEditorChangeDisposable);
-
-    // 返回一个复合的disposable对象
-    return { dispose: () => disposables.forEach(d => d.dispose()) };
-}
-
-/**
- * 生成提醒HTML内容
- * 创建一个美观的提醒界面，包含标题、消息和确认按钮
- * 实现了以下功能：
- * 1. 响应式设计，适应不同屏幕尺寸
- * 2. 动画效果，提高用户体验
- * 3. 倒计时功能，防止用户立即关闭提醒
- * 4. 阻止页面关闭和键盘事件
+ * 生成提醒HTML内容（无倒计时版本）
  */
 function generateReminderHTML(title: string, message: string, buttonText: string): string {
     const texts = getTexts();
-    const isEnglish = getConfig().language === 'en';
+    const config = getConfig();
+    const isEnglish = config.language === 'en';
 
     return `
 <!DOCTYPE html>
@@ -377,24 +233,13 @@ function generateReminderHTML(title: string, message: string, buttonText: string
             transition: all 0.3s ease;
             font-weight: 500;
             box-shadow: 0 8px 20px rgba(102, 126, 234, 0.3);
-            opacity: 0.5;
-            pointer-events: none;
-        }
-
-        .confirm-btn.enabled {
             opacity: 1;
             pointer-events: auto;
         }
 
-        .confirm-btn.enabled:hover {
+        .confirm-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 12px 25px rgba(102, 126, 234, 0.4);
-        }
-
-        .countdown {
-            font-size: 0.9em;
-            color: #999;
-            margin-top: 15px;
         }
 
         .pulse {
@@ -413,65 +258,51 @@ function generateReminderHTML(title: string, message: string, buttonText: string
         <div class="title">${title}</div>
         <div class="message">${message}</div>
         <button id="confirmBtn" class="confirm-btn">${buttonText}</button>
-        <div id="countdown" class="countdown">${texts.waitSeconds} <span id="seconds">3</span> ${
-        isEnglish ? 'seconds...' : '秒...'
-    }</div>
     </div>
 
     <script>
         const vscode = acquireVsCodeApi();
         const confirmBtn = document.getElementById('confirmBtn');
-        const countdownEl = document.getElementById('countdown');
-        const secondsEl = document.getElementById('seconds');
 
-        let countdown = 3;
+        console.log('WebView loaded, button text:', '${buttonText}');
+        console.log('Button element:', confirmBtn);
 
-        // 倒计时逻辑
-        const timer = setInterval(() => {
-            countdown--;
-            secondsEl.textContent = countdown;
-
-            if (countdown <= 0) {
-                clearInterval(timer);
-                confirmBtn.classList.add('enabled');
-                countdownEl.style.display = 'none';
-            }
-        }, 1000);
-
-        // 确认按钮点击事件
-        confirmBtn.addEventListener('click', () => {
-            if (confirmBtn.classList.contains('enabled')) {
-                vscode.postMessage({
-                    command: 'confirm'
-                });
-            }
+        // 确认按钮点击事件 - 立即可点击
+        confirmBtn.addEventListener('click', (e) => {
+            console.log('Button clicked!', e);
+            console.log('Sending confirm message...');
+            vscode.postMessage({
+                command: 'confirm'
+            });
         });
 
-        // 防止页面被意外关闭
-        window.addEventListener('beforeunload', (e) => {
-            e.preventDefault();
-            e.returnValue = '';
+        // 添加调试信息
+        confirmBtn.addEventListener('mousedown', () => {
+            console.log('Button mousedown');
+        });
+
+        confirmBtn.addEventListener('mouseup', () => {
+            console.log('Button mouseup');
         });
 
         // 获得焦点
         window.focus();
         document.body.focus();
 
-        // 阻止键盘事件
+        // 支持回车键确认
         document.addEventListener('keydown', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            return false;
-        }, true);
-
-        // 阻止鼠标点击事件传播到编辑器
-        document.addEventListener('click', (e) => {
-            if (!e.target.closest('.reminder-container')) {
+            console.log('Key pressed:', e.key);
+            if (e.key === 'Enter' || e.key === ' ') {
                 e.preventDefault();
-                e.stopPropagation();
-                return false;
+                console.log('Triggering button click via keyboard');
+                confirmBtn.click();
             }
-        }, true);
+        });
+
+        // 添加更多调试信息
+        console.log('Button styles:', window.getComputedStyle(confirmBtn));
+        console.log('Button disabled:', confirmBtn.disabled);
+        console.log('Button pointer-events:', window.getComputedStyle(confirmBtn).pointerEvents);
     </script>
 </body>
 </html>`;

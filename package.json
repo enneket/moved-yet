@@ -96,6 +96,13 @@
                     "minimum": 1,
                     "maximum": 30,
                     "description": "无活动重置计时器时间（分钟）"
+                },
+                "movedYet.reminderCountdown": {
+                    "type": "number",
+                    "default": 1,
+                    "minimum": 0,
+                    "maximum": 10,
+                    "description": "提醒确认倒计时时间（秒），设为0则立即可点击"
                 }
             }
         },
