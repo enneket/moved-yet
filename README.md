@@ -121,6 +121,24 @@
 
 ## 🛠️ 开发相关
 
+### 🚀 快速命令（使用 Makefile）
+
+项目使用 Makefile 提供简洁统一的命令接口：
+
+```bash
+# 查看所有可用命令
+make help
+
+# 常用命令
+make test           # 运行测试
+make compile        # 编译项目
+make package        # 构建 VSIX 包
+make install        # 安装到本地 VS Code
+make release VERSION=0.0.3  # 发布新版本
+```
+
+> 📖 **详细说明** → [Makefile 使用指南](docs/Makefile使用指南.md)
+
 ### 📦 自动化发布
 
 本项目配置了完整的 GitHub Actions CI/CD 工作流：
@@ -131,7 +149,10 @@
 
 #### 发布新版本
 ```bash
-# 使用发布脚本（推荐）
+# 使用 Makefile（推荐）
+make release VERSION=0.0.3
+
+# 或使用发布脚本
 ./sh/create-release.sh 0.0.3
 
 # 或手动创建标签
@@ -148,21 +169,26 @@ cd moved-yet
 # 确保使用 Node.js 25.x 或更高版本
 node --version  # 应该显示 v25.x.x
 
-npm install && npm run compile
+# 安装依赖并编译
+pnpm install
+make compile
 ```
 
 ### 环境要求
 - **Node.js**: 25.x 或更高版本
 - **VS Code**: 1.100.0 或更高版本
-- **npm**: 11.x 或更高版本
+- **pnpm**: 推荐使用（或 npm 11.x+）
+- **make**: 用于运行 Makefile 命令
 
 ### 编译 .vsix 包
 ```bash
-# 方法一：使用 vsce
-npm install -g @vscode/vsce
-vsce package
+# 方法一：使用 Makefile（推荐）
+make package
 
-# 方法二：使用项目脚本
+# 方法二：使用 vsce
+pnpm exec vsce package --no-dependencies
+
+# 方法三：使用项目脚本
 ./sh/package-vsix.sh
 ```
 
@@ -171,10 +197,18 @@ vsce package
 
 ## 📚 文档导航
 
-- 📖 [功能指南](docs/功能指南.md) - 详细功能说明和使用技巧
-- 🛠️ [开发指南](docs/开发指南.md) - 开发、测试、打包指南  
-- 📦 [编译指南](docs/编译指南.md) - 详细的编译步骤和故障排除
+> 💡 **提示**: 查看 [docs/README.md](docs/README.md) 获取完整文档导航
+
+### 用户文档
+- 📖 [功能指南](docs/功能指南.md) - 详细功能说明和使用技巧（包含专注模式）
 - 📝 [更新日志](docs/CHANGELOG.md) - 版本更新记录
+
+### 开发文档
+- 🛠️ [开发指南](docs/dev-guide/开发指南.md) - 开发、测试、打包指南  
+- 📦 [编译指南](docs/dev-guide/编译指南.md) - 详细的编译步骤和故障排除
+- 🔧 [Makefile 使用指南](docs/dev-guide/Makefile使用指南.md) - Makefile 命令说明
+- 🧪 [测试指南](docs/dev-guide/测试指南.md) - 测试流程和方法
+- 🚀 [GitHub CI/CD 配置](docs/dev-guide/GitHub-CICD配置指南.md) - CI/CD 配置说明
 
 ## 🌍 多语言支持
 
