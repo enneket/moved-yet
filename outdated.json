@@ -1,0 +1,92 @@
+{
+  "@types/mocha": {
+    "latest": "10.0.10",
+    "wanted": "10.0.10",
+    "isDeprecated": false,
+    "dependencyType": "devDependencies"
+  },
+  "@vscode/test-electron": {
+    "latest": "2.5.2",
+    "wanted": "2.5.2",
+    "isDeprecated": false,
+    "dependencyType": "devDependencies"
+  },
+  "@vscode/vsce": {
+    "latest": "3.7.1",
+    "wanted": "3.7.1",
+    "isDeprecated": false,
+    "dependencyType": "devDependencies"
+  },
+  "typescript": {
+    "latest": "5.9.3",
+    "wanted": "5.9.3",
+    "isDeprecated": false,
+    "dependencyType": "devDependencies"
+  },
+  "@types/node": {
+    "latest": "25.3.0",
+    "wanted": "25.2.0",
+    "isDeprecated": false,
+    "dependencyType": "devDependencies"
+  },
+  "@types/vscode": {
+    "latest": "1.109.0",
+    "wanted": "1.108.1",
+    "isDeprecated": false,
+    "dependencyType": "devDependencies"
+  },
+  "@typescript-eslint/eslint-plugin": {
+    "latest": "8.56.0",
+    "wanted": "8.54.0",
+    "isDeprecated": false,
+    "dependencyType": "devDependencies"
+  },
+  "@typescript-eslint/parser": {
+    "latest": "8.56.0",
+    "wanted": "8.54.0",
+    "isDeprecated": false,
+    "dependencyType": "devDependencies"
+  },
+  "@types/glob": {
+    "latest": "9.0.0",
+    "wanted": "8.1.0",
+    "isDeprecated": true,
+    "dependencyType": "devDependencies"
+  },
+  "@types/sinon": {
+    "latest": "21.0.0",
+    "wanted": "17.0.4",
+    "isDeprecated": false,
+    "dependencyType": "devDependencies"
+  },
+  "eslint": {
+    "latest": "10.0.1",
+    "wanted": "9.39.2",
+    "isDeprecated": false,
+    "dependencyType": "devDependencies"
+  },
+  "glob": {
+    "latest": "13.0.6",
+    "wanted": "11.1.0",
+    "isDeprecated": false,
+    "dependencyType": "devDependencies"
+  },
+  "mocha": {
+    "latest": "11.7.5",
+    "wanted": "10.8.2",
+    "isDeprecated": false,
+    "dependencyType": "devDependencies"
+  },
+  "sinon": {
+    "latest": "21.0.1",
+    "wanted": "20.0.0",
+    "isDeprecated": false,
+    "dependencyType": "devDependencies"
+  },
+  "@vscode/test-cli": {
+    "latest": "0.0.12",
+    "wanted": "0.0.10",
+    "isDeprecated": false,
+    "dependencyType": "devDependencies"
+  }
+}
