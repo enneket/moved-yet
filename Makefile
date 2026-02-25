@@ -89,6 +89,13 @@ full-test: validate quick-test integration-test system-test ## 运行完整测�
 # 测试（默认快速测试）
 test: quick-test ## 运行测试（默认快速测试）
 
+# 测试覆盖率
+test-coverage: compile ## 运行测试并生成覆盖率报告
+	@echo "$(BLUE)🧪 运行测试覆盖率...$(NC)"
+	@pnpm run test:coverage || true
+	@echo "$(GREEN)✅ 覆盖率报告已生成$(NC)"
+	@echo "$(BLUE)查看报告: coverage/index.html$(NC)"
+
 # 构建 VSIX 包
 package: clean compile lint ## 构建 VSIX 包
 	@echo "$(BLUE)📦 构建 VSIX 包...$(NC)"

@@ -100,3 +100,5 @@ Thumbs.db
 # Test results
 test-results/
 coverage/
+
+.kiro/
