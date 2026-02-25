@@ -231,16 +231,6 @@ pnpm exec vsce package --no-dependencies
 - 🌙 **深色模式** - 自动适配 VS Code 主题，保护眼睛
 - 🌍 **国际化** - 中英文双语，贴心本土化
 
-## 📦 安装方式对比
-
-| 安装方式 | 适用编辑器 | 自动更新 | 推荐度 |
-|---------|-----------|---------|--------|
-| **Open VSX Registry** | VS Code, VSCodium, Code-OSS | ✅ | ⭐⭐⭐⭐⭐ |
-| **VS Code Marketplace** | 仅 VS Code | ✅ | ⭐⭐⭐⭐ |
-| **手动 VSIX 安装** | 所有编辑器 | ❌ | ⭐⭐⭐ |
-| **源码编译** | 所有编辑器 | ❌ | ⭐⭐ |
-
-> 💡 **推荐使用 Open VSX Registry**，支持更多开源编辑器，更新及时
 
 ## 🤝 支持与反馈
 
