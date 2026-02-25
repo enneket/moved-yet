@@ -2,7 +2,7 @@
     "name": "moved-yet",
     "displayName": "Moved Yet",
     "description": "动了么？—久坐和喝水强制提醒插件",
-    "version": "0.0.1",
+    "version": "1.0.0",
     "publisher": "enneket",
     "engines": {
         "vscode": "^1.100.0"
