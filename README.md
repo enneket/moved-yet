@@ -184,7 +184,7 @@ pnpm exec vsce package --no-dependencies
 
 ### 用户文档
 - 📖 [功能指南](docs/功能指南.md) - 详细功能说明和使用技巧（包含专注模式）
-- 📝 [更新日志](docs/CHANGELOG.md) - 版本更新记录
+- 📝 [更新日志](CHANGELOG.md) - 版本更新记录
 
 ### 开发文档
 - 🛠️ [开发指南](docs/dev-guide/开发指南.md) - 开发、测试、打包指南  
