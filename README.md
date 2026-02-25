@@ -27,28 +27,11 @@
 
 ### 安装插件
 
-#### 方法一：Open VSX Registry（推荐）
-1. **VS Code 用户**：
-   ```bash
-   # 使用命令行安装
-   code --install-extension enneket.moved-yet
-   ```
-   
-2. **VSCodium 用户**：
-   - 打开扩展面板 (`Ctrl+Shift+X`)
-   - 搜索 "moved-yet" 或 "动了么"
-   - 点击安装
+#### 方法一：Open VSX 市场
+[动了么？](https://open-vsx.org/extension/enneket/moved-yet)
 
-3. **手动下载**：
-   - 访问 [Open VSX Registry](https://open-vsx.org/extension/enneket/moved-yet)
-   - 下载 `.vsix` 文件
-   - VS Code 中运行：`Extensions: Install from VSIX...`
-
-#### 方法二：VS Code Marketplace
-~~暂未发布到官方市场~~
-
-#### 方法三：从源码安装
-
+#### 方法二：Github 下载
+[动了么？](https://github.com/enneket/moved-yet/releases)
 
 ### 基础配置
 ```json
