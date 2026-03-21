@@ -1,4 +1,4 @@
-.PHONY: help compile lint test clean package install validate quick-test integration-test system-test full-test release publish-openvsx
+.PHONY: help compile lint test clean package install validate quick-test integration-test system-test full-test release publish-openvsx tdd tdd-watch
 
 # 默认目标
 .DEFAULT_GOAL := help
@@ -22,6 +22,12 @@ help: ## 显示帮助信息
 	@echo "$(GREEN)可用命令:$(NC)"
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | awk 'BEGIN {FS = ":.*?## "}; {printf "  $(BLUE)%-20s$(NC) %s\n", $$1, $$2}'
 	@echo ""
+	@echo "$(YELLOW)TDD 红绿重构流程:$(NC)"
+	@echo "  make tdd            # 运行 TDD 流程指导"
+	@echo "  make tdd-watch      # 监听文件变化自动测试"
+	@echo "  make red            # Red 阶段 - 写失败的测试"
+	@echo "  make green          # Green 阶段 - 让测试通过"
+	@echo ""
 	@echo "$(YELLOW)示例:$(NC)"
 	@echo "  make compile        # 编译项目"
 	@echo "  make test           # 运行测试"
@@ -31,13 +37,13 @@ help: ## 显示帮助信息
 # 编译
 compile: ## 编译 TypeScript 代码
 	@echo "$(BLUE)📦 编译 TypeScript...$(NC)"
-	@pnpm run compile
+	@npm run compile
 	@echo "$(GREEN)✅ 编译完成$(NC)"
 
 # 代码检查
 lint: ## 运行 ESLint 代码检查
 	@echo "$(BLUE)🔍 运行 ESLint...$(NC)"
-	@pnpm run lint
+	@npm run lint
 	@echo "$(GREEN)✅ 代码检查完成$(NC)"
 
 # 清理
@@ -77,7 +83,7 @@ system-test: compile ## 运行系统测试
 	@echo "$(BLUE)系统环境:$(NC)"
 	@echo "  OS: $$(uname -s)"
 	@echo "  Node: $$(node --version)"
-	@echo "  pnpm: $$(pnpm --version)"
+	@echo "  npm: $$(npm --version)"
 	@test -f out/extension.js && echo "$(GREEN)✅ 编译输出正常$(NC)" || echo "$(RED)❌ 编译输出缺失$(NC)"
 	@echo "$(GREEN)✅ 系统测试完成$(NC)"
 
@@ -92,14 +98,14 @@ test: quick-test ## 运行测试（默认快速测试）
 # 测试覆盖率
 test-coverage: compile ## 运行测试并生成覆盖率报告
 	@echo "$(BLUE)🧪 运行测试覆盖率...$(NC)"
-	@pnpm run test:coverage || true
+	@npm run test:coverage || true
 	@echo "$(GREEN)✅ 覆盖率报告已生成$(NC)"
 	@echo "$(BLUE)查看报告: coverage/index.html$(NC)"
 
 # 构建 VSIX 包
 package: clean compile lint ## 构建 VSIX 包
 	@echo "$(BLUE)📦 构建 VSIX 包...$(NC)"
-	@pnpm exec vsce package --no-dependencies
+	@npm exec vsce package --no-dependencies
 	@test -f $(PACKAGE_NAME) && echo "$(GREEN)✅ VSIX 包构建成功: $(PACKAGE_NAME)$(NC)" || (echo "$(RED)❌ VSIX 包构建失败$(NC)" && exit 1)
 	@du -h $(PACKAGE_NAME) | awk '{print "$(BLUE)📏 包大小: " $$1 "$(NC)"}'
 
@@ -117,7 +123,7 @@ publish-openvsx: package ## 发布到 Open VSX Registry
 		echo "$(YELLOW)使用方法: make publish-openvsx OVSX_PAT=your_token$(NC)"; \
 		exit 1; \
 	fi
-	@pnpm exec ovsx publish $(PACKAGE_NAME) -p $(OVSX_PAT)
+	@npm exec ovsx publish $(PACKAGE_NAME) -p $(OVSX_PAT)
 	@echo "$(GREEN)✅ 发布完成$(NC)"
 
 # 创建发布
@@ -150,7 +156,7 @@ release: ## 创建新版本发布 (使用: make release VERSION=0.0.2)
 # 开发模式
 dev: compile ## 编译并监听文件变化
 	@echo "$(BLUE)👨‍💻 开发模式...$(NC)"
-	@pnpm run watch
+	@npm run watch
 
 # 显示项目信息
 info: ## 显示项目信息
@@ -169,18 +175,18 @@ info: ## 显示项目信息
 # 检查依赖更新
 check-updates: ## 检查依赖更新
 	@echo "$(BLUE)🔍 检查依赖更新...$(NC)"
-	@pnpm outdated || true
+	@npm outdated || true
 
 # 更新依赖
 update-deps: ## 更新依赖
 	@echo "$(BLUE)📦 更新依赖...$(NC)"
-	@pnpm update
+	@npm update
 	@echo "$(GREEN)✅ 依赖更新完成$(NC)"
 
 # 安全审计
 audit: ## 运行安全审计
 	@echo "$(BLUE)🔒 运行安全审计...$(NC)"
-	@pnpm audit --audit-level=high || true
+	@npm audit --audit-level=high || true
 	@echo "$(GREEN)✅ 安全审计完成$(NC)"
 
 # 格式化代码
@@ -220,8 +226,42 @@ clean-all: clean ## 清理所有（包括 node_modules）
 	@rm -rf node_modules/
 	@echo "$(GREEN)✅ 清理完成$(NC)"
 
+# TDD 模式 - 红绿重构循环
+tdd: compile ## TDD 模式：运行一次测试（Red-Green-Refactor 流程）
+	@echo "$(BLUE)🔴 TDD 模式 - Red 阶段$(NC)"
+	@echo "$(YELLOW)运行测试，预期有测试失败...$(NC)"
+	@npm run test || true
+	@echo ""
+	@echo "$(GREEN)🟢 Green 阶段$(NC)"
+	@echo "$(YELLOW)编写代码让测试通过...$(NC)"
+	@echo ""
+	@echo "$(BLUE)🔵 Refactor 阶段$(NC)"
+	@echo "$(YELLOW)重构代码，保持测试通过...$(NC)"
+	@echo ""
+	@echo "$(GREEN)TDD 流程完成。运行 'make tdd-watch' 持续监听文件变化$(NC)"
+
+# TDD 监听模式
+tdd-watch: compile ## TDD 监听模式：监听文件变化并运行测试
+	@echo "$(BLUE)🔴🟢🔵 TDD 监听模式启动$(NC)"
+	@echo "$(YELLOW)监听 src/ 目录变化...$(NC)"
+	@echo "$(YELLOW)修改文件后自动运行测试...$(NC)"
+	@echo "$(YELLOW)按 Ctrl+C 退出$(NC)"
+	@npm exec chokidar "src/**/*.ts" "src/test/**/*.ts" --initial --debounce 500 -c "npm run compile && npm run test" || true
+
+# 只运行红测试（预期失败）
+red: compile ## Red 阶段：只运行测试，不编译（预期测试失败）
+	@echo "$(RED)🔴 Red 阶段 - 运行测试（预期失败）$(NC)"
+	@xvfb-run -a node ./out/test/runTest.js || true
+
+# 只运行绿测试（快速通过）
+green: compile lint ## Green 阶段：编译+代码检查+测试
+	@echo "$(GREEN)🟢 Green 阶段 - 代码检查+测试$(NC)"
+	@npm run lint
+	@xvfb-run -a node ./out/test/runTest.js
+	@echo "$(GREEN)✅ 所有测试通过！$(NC)"
+
 # 重新安装
 reinstall: clean-all ## 重新安装依赖
 	@echo "$(BLUE)📦 重新安装依赖...$(NC)"
-	@pnpm install
+	@npm install
 	@echo "$(GREEN)✅ 依赖安装完成$(NC)"

@@ -182,10 +182,10 @@
         ]
     },
     "scripts": {
-        "vscode:prepublish": "pnpm run compile",
+        "vscode:prepublish": "npm run compile",
         "compile": "tsc -p ./",
         "watch": "tsc -watch -p ./",
-        "pretest": "pnpm run compile && pnpm run lint",
+        "pretest": "npm run compile && npm run lint",
         "lint": "eslint src",
         "test": "xvfb-run -a node ./out/test/runTest.js",
         "test:coverage": "c8 --reporter=html --reporter=text --reporter=lcov xvfb-run -a node ./out/test/runTest.js"
@@ -202,6 +202,7 @@
         "@vscode/test-electron": "^2.5.2",
         "@vscode/vsce": "^3.7.1",
         "c8": "^10.1.3",
+        "chokidar": "^4.0.3",
         "eslint": "^9.25.1",
         "glob": "^11.0.2",
         "mocha": "^10.4.0",
