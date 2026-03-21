@@ -38,11 +38,11 @@ suite('ActivityDetectionService Test Suite', () => {
 
         // Stub vscode.workspace and vscode.window events
         // Save the stubs so we can restore them later
-        onDidChangeTextDocumentStub = sinon.stub(vscode.workspace, 'onDidChangeTextDocument');
-        onDidChangeTextEditorSelectionStub = sinon.stub(vscode.window, 'onDidChangeTextEditorSelection');
-        onDidChangeActiveTextEditorStub = sinon.stub(vscode.window, 'onDidChangeActiveTextEditor');
-        onDidChangeWorkspaceFoldersStub = sinon.stub(vscode.workspace, 'onDidChangeWorkspaceFolders');
-        onDidChangeConfigurationStub = sinon.stub(vscode.workspace, 'onDidChangeConfiguration');
+        onDidChangeTextDocumentStub = sinon.stub(vscode.workspace, 'onDidChangeTextDocument').returns({ dispose: sinon.stub() });
+        onDidChangeTextEditorSelectionStub = sinon.stub(vscode.window, 'onDidChangeTextEditorSelection').returns({ dispose: sinon.stub() });
+        onDidChangeActiveTextEditorStub = sinon.stub(vscode.window, 'onDidChangeActiveTextEditor').returns({ dispose: sinon.stub() });
+        onDidChangeWorkspaceFoldersStub = sinon.stub(vscode.workspace, 'onDidChangeWorkspaceFolders').returns({ dispose: sinon.stub() });
+        onDidChangeConfigurationStub = sinon.stub(vscode.workspace, 'onDidChangeConfiguration').returns({ dispose: sinon.stub() });
 
         registerCommandStub = sinon.stub(vscode.commands, 'registerCommand');
 
