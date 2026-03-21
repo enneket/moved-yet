@@ -27,11 +27,14 @@
 
 ### 安装插件
 
-#### 方法一：Open VSX 市场
-[动了么？](https://open-vsx.org/extension/enneket/moved-yet)
+从 GitHub 下载最新版本的 `.vsix` 文件：
 
-#### 方法二：Github 下载
-[动了么？](https://github.com/enneket/moved-yet/releases)
+[动了么？- GitHub Releases](https://github.com/enneket/moved-yet/releases)
+
+安装命令：
+```bash
+code --install-extension moved-yet-<version>.vsix
+```
 
 ### 基础配置
 ```json
@@ -144,9 +147,9 @@
 ## 🤝 支持与反馈
 
 遇到问题或有建议？欢迎：
-- 🐛 [提交 Issue](https://github.com/your-repo/issues)
-- 💡 [功能建议](https://github.com/your-repo/discussions)
-- 🔧 [贡献代码](https://github.com/your-repo/pulls)
+- 🐛 [提交 Issue](https://github.com/enneket/moved-yet/issues)
+- 💡 [功能建议](https://github.com/enneket/moved-yet/discussions)
+- 🔧 [贡献代码](https://github.com/enneket/moved-yet/pulls)
 
 ---
 
