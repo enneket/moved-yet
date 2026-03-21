@@ -85,7 +85,7 @@ class ActivityDetectionService {
         this.isEnabled = false;
         
         // 清理所有监听器
-        this.disposables.forEach(disposable => disposable.dispose());
+        this.disposables.forEach(disposable => disposable?.dispose());
         this.disposables = [];
 
         // 清理无活动定时器
