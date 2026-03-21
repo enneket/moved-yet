@@ -36,23 +36,13 @@ suite('ActivityDetectionService Test Suite', () => {
 
         showInfoMessageStub = sinon.stub(vscode.window, 'showInformationMessage');
 
-        // Create event stubs
-        onDidChangeTextDocumentStub = sinon.stub();
-        onDidChangeTextEditorSelectionStub = sinon.stub();
-        onDidChangeActiveTextEditorStub = sinon.stub();
-        onDidChangeWorkspaceFoldersStub = sinon.stub();
-        onDidChangeConfigurationStub = sinon.stub();
-
-        const mockEvent = (callback: Function) => {
-            return { dispose: sinon.stub() };
-        };
-
         // Stub vscode.workspace and vscode.window events
-        sinon.stub(vscode.workspace, 'onDidChangeTextDocument').callsFake(onDidChangeTextDocumentStub);
-        sinon.stub(vscode.window, 'onDidChangeTextEditorSelection').callsFake(onDidChangeTextEditorSelectionStub);
-        sinon.stub(vscode.window, 'onDidChangeActiveTextEditor').callsFake(onDidChangeActiveTextEditorStub);
-        sinon.stub(vscode.workspace, 'onDidChangeWorkspaceFolders').callsFake(onDidChangeWorkspaceFoldersStub);
-        sinon.stub(vscode.workspace, 'onDidChangeConfiguration').callsFake(onDidChangeConfigurationStub);
+        // Save the stubs so we can restore them later
+        onDidChangeTextDocumentStub = sinon.stub(vscode.workspace, 'onDidChangeTextDocument');
+        onDidChangeTextEditorSelectionStub = sinon.stub(vscode.window, 'onDidChangeTextEditorSelection');
+        onDidChangeActiveTextEditorStub = sinon.stub(vscode.window, 'onDidChangeActiveTextEditor');
+        onDidChangeWorkspaceFoldersStub = sinon.stub(vscode.workspace, 'onDidChangeWorkspaceFolders');
+        onDidChangeConfigurationStub = sinon.stub(vscode.workspace, 'onDidChangeConfiguration');
 
         registerCommandStub = sinon.stub(vscode.commands, 'registerCommand');
 
